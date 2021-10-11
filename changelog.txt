@@ -12,3 +12,10 @@ Removed "Disable AutoPlay" and "Disable Remote Desktop" code
 Removed "Wifi Sense" and "Disable Hibernation" code
 UAC wont be disabled now via script
 Made tweaks to 'Disable Windows Defender' script. Defender should not re-enable itself now!
+
+Update 2 : 
+
+Fixed up some errors
+Removed HomeGroup Services
+Made some changes to services, had some errors while trying to disable them
+Fixed O&OSHUTUP10 Config Link
