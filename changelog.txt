@@ -1,0 +1,14 @@
+Update 1 : 
+
+Remade 'Remove Bloatware' code part! Now script loads Bloatware Packages list from text file located in bin folder.
+Removed Registry Tweaks for Immersive Control Panel.
+Removed some Bloatware modifications.
+Remvoed Legacy Volume Control + Notifications Tweaks (they dont work on Windows 11)
+Added Scheduled Tasks text file, script will load tasks from there and disable them
+Made changes to Small Taskbar code (Small Taskbar Registry hack on Windows 11 is buggy)
+Added custom function to restart Windows Explorer
+Made tweaks to Disable/Enable Windows Update code
+Removed "Disable AutoPlay" and "Disable Remote Desktop" code
+Removed "Wifi Sense" and "Disable Hibernation" code
+UAC wont be disabled now via script
+Made tweaks to 'Disable Windows Defender' script. Defender should not re-enable itself now!

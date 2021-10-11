@@ -1,0 +1,34 @@
+"randomRestore.ps1"
+This will restore Game DVR, Windows Store, Notifications
+File History, Autoplay, Remote Desktop
+Windows Defender Key. Its reccomended to run this if you
+want to restore stuff above
+
+
+"enableHibernation.ps1"
+This will enable Hibernation, run this script if you
+cant change power schemes
+
+
+"restoreServices.ps1"
+This will set all Disabled services to Manual (Enable them)
+
+
+"restoreWiFi.ps1"
+This will restore WiFi, run this script if you are using laptop
+
+
+"restoreScheduledTasks.ps1"
+This will re-enable all disabled scheduled tasks, useful if
+you have some problems with running programs 
+or having issues on system bootup
+
+
+"restoreVisualEffects.ps1"
+This will restore all visual effects applied by debloater script
+
+
+"restoreTaskbar.ps1"
+This will restore your taskbar to default size (big)
+
+
