@@ -198,7 +198,7 @@ $essentialtweaks.Add_Click({
 
     Write-Host "Running O&O Shutup with Not Recommended Settings"
     Import-Module BitsTransfer
-    Start-BitsTransfer -Source "https://raw.githubusercontent.com/teeotsa/win10script/master/ooshutup10.cfg" -Destination ooshutup10.cfg
+    Start-BitsTransfer -Source "https://raw.githubusercontent.com/teeotsa/windows-10-debloat/main/ooshutup10.cfg" -Destination ooshutup10.cfg
     Start-BitsTransfer -Source "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe" -Destination OOSU10.exe
     ./OOSU10.exe ooshutup10.cfg /quiet
 
@@ -262,6 +262,9 @@ $essentialtweaks.Add_Click({
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting" -Name "Disabled" -Type DWord -Value 1
     Disable-ScheduledTask -TaskName "Microsoft\Windows\Windows Error Reporting\QueueReporting" | Out-Null
     Write-Host "Restricting Windows Update P2P only to local network..."
+    if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization")){
+        New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization" | Out-Null
+    }
     If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config")) {
         New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" | Out-Null
     }
@@ -274,11 +277,11 @@ $essentialtweaks.Add_Click({
     Set-Service "dmwappushservice" -StartupType Disabled
     Write-Host "Enabling F8 boot menu options..."
     bcdedit /set `{current`} bootmenupolicy Legacy | Out-Null
-    Write-Host "Stopping and disabling Home Groups services..."
-    Stop-Service "HomeGroupListener" -WarningAction SilentlyContinue
-    Set-Service "HomeGroupListener" -StartupType Disabled
-    Stop-Service "HomeGroupProvider" -WarningAction SilentlyContinue
-    Set-Service "HomeGroupProvider" -StartupType Disabled
+    #Write-Host "Stopping and disabling Home Groups services..."
+    #Stop-Service "HomeGroupListener" -WarningAction SilentlyContinue
+    #Set-Service "HomeGroupListener" -StartupType Disabled
+    #Stop-Service "HomeGroupProvider" -WarningAction SilentlyContinue
+    #Set-Service "HomeGroupProvider" -StartupType Disabled
     Write-Host "Disabling Remote Assistance..."
     Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Name "fAllowToGetHelp" -Type DWord -Value 0
     Write-Host "Disabling Storage Sense..."
@@ -337,6 +340,9 @@ $essentialtweaks.Add_Click({
 	#SVCHost Tweak
 	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control" -Name "SvcHostSplitThresholdInKB" -Type DWord -Value 4194304
     Write-Host "Disable News and Interests"
+    if (!(Test-Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds")){
+    New-Item -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Force | Out-Null
+    }
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Name "EnableFeeds" -Type DWord -Value 0
     #Remove news and interest from taskbar
     Set-ItemProperty -Path  "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds" -Name "ShellFeedsTaskbarViewMode" -Type DWord -Value 2
@@ -358,7 +364,7 @@ $essentialtweaks.Add_Click({
         "*Xbl*" # Xbox Services
         "LanmanWorkstation"
         "workfolderssvc"
-        "WinHttpAutoProxySvc"
+        #"WinHttpAutoProxySvc" # NSudo Required
         "WSearch" # Windows Search
         "PushToInstall" # Needed for Microsoft Store
         "icssvc" # Mobile Hotspot
@@ -371,7 +377,7 @@ $essentialtweaks.Add_Click({
         "lmhosts" # TCP/IP NetBIOS Helper
         "SysMain" # SuperFetch 
         "svsvc" # Spot Verifier
-        "sppsvc" # Software Protection
+        #"sppsvc" # Software Protection
         "SCPolicySvc" # Smart Card Removal Policy
         "ScDeviceEnum" # Smart Card Device Enumeration Service
         "SCardSvr" # Smart Card
@@ -385,7 +391,7 @@ $essentialtweaks.Add_Click({
         "RasMan" # Remote Access Connection Manager
         "RasAuto" # Remote Access Auto Connection Manager
         "TroubleshootingSvc" # Recommended Troubleshooting Service
-        "RmSvc" # Radio Management Service (Might be needed for laptops)
+        #"RmSvc" # Radio Management Service (Might be needed for laptops)
         "QWAVE" # Quality Windows Audio Video Experience
         "wercplsupport" # Problem Reports Control Panel Support
         "Spooler" # Print Spooler
@@ -397,7 +403,7 @@ $essentialtweaks.Add_Click({
         "InstallService" # Microsoft Store Install Service
         "SmsRouter" # Microsoft Windows SMS Router Service
         "smphost" # Microsoft Storage Spaces SMP
-        "NgcCtnrSvc" # Microsoft Passport Container
+        #"NgcCtnrSvc" # Microsoft Passport Container
         "MsKeyboardFilter" # Microsoft Keyboard Filter
         "cloudidsvc" # Microsoft Cloud Identity Service
         "wlidsvc" # Microsoft Account Sign-in Assistant
@@ -406,14 +412,14 @@ $essentialtweaks.Add_Click({
         "lfsvc" # Geolocation Service
         "fhsvc" # File History Service
         "Fax" # Fax
-        "embeddedmode" # Embedded Mode
+        #"embeddedmode" # Embedded Mode
         "MapsBroker" # Downloaded Maps Manager
         "TrkWks" # Distributed Link Tracking Client
         "WdiSystemHost" # Diagnostic System Host
         "WdiServiceHost" # Diagnostic Service Host
         "DPS" # Diagnostic Policy Service
         "diagsvc" # Diagnostic Execution Service
-        "DoSvc" # Delivery Optimization
+        #"DoSvc" # Delivery Optimization
         "DusmSvc" # Data Usage
         "VaultSvc" # Credential Manager
         "AppReadiness" # App Readiness
@@ -430,8 +436,8 @@ $essentialtweaks.Add_Click({
     if (Test-Path "$PSScriptRoot\bin\scheduledtasks_list.txt"){
         $Lines = Get-Content -Path "$PSScriptRoot\bin\scheduledtasks_list.txt"
             foreach($Task in $Lines){
-                Disable-ScheduledTask -TaskName -ErrorAction SilentlyContinue | Out-Null
-                Write-Host "Trying to disable `"$Task`"" -ForegroundColor Red -BackgroundColor Black
+                Disable-ScheduledTask -TaskName $Task -ErrorAction SilentlyContinue | Out-Null
+                Write-Host "Trying to disable `"$Task`"" -ForegroundColor Yellow -BackgroundColor Black
             }
     }
 
@@ -485,7 +491,7 @@ $essentialtweaks.Add_Click({
     if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AppHost")){
         New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AppHost" -Force | Out-Null
     }
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AppHost" -Name "EnableWebContentEvaluation" -Type DWord -Value 0
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AppHost" -Name "EnableWebContentEvaluation" -Value 0
     write-Host "SmartScreen has been disabled"
     <#
     write-Host "Trying to disabled Wi-Fi Sense..."
@@ -586,9 +592,9 @@ $essentialtweaks.Add_Click({
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Name "EnableFeeds" -Type DWord -Value 0
     if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR")){
-        New-Path -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Force | Out-Null
+        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Force | Out-Null
     }
-    Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -Type DWord -Value 0
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -Type DWord -Value 0
     if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")){
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SilentInstalledAppsEnabled" -Type DWord -Value 0
     }
