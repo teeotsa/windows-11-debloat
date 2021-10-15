@@ -439,6 +439,9 @@ $essentialtweaks.Add_Click({
                 Disable-ScheduledTask -TaskName $Task -ErrorAction SilentlyContinue | Out-Null
                 Write-Host "Trying to disable `"$Task`"" -ForegroundColor Yellow -BackgroundColor Black
             }
+    } else {
+        # Update 3 : Added else condition
+        Write-Host "Can't find `"scheduledtasks_list.txt`" from bin folder!" -ForegroundColor Yellow -BackgroundColor Black
     }
 
     <#
@@ -1011,6 +1014,9 @@ $RemoveBloat.Add_Click({
         foreach($Line in $BloatwareList){
             Get-AppxPackage $Line | Remove-AppxPackage -ErrorAction SilentlyContinue 
         }
+    } else {
+        # Update 3 : Added ELSE condition
+        Write-Host "Can't find `"bloatware_list.txt`" inside bin folder! Make sure its there." -ForegroundColor Yellow -BackgroundColor Black
     }
 })
 
