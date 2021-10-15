@@ -1,6 +1,6 @@
 # Windows 11 Debloater
 
-This script is based of my Windows 10's debloate script. You can find it [here!](https://github.com/teeotsa/windows-10-debloat)
+This script is based of my Windows 10's debloater script. You can find it [here!](https://github.com/teeotsa/windows-10-debloat)
 
 # Can you run it?
 
