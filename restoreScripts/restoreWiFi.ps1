@@ -1,8 +1,4 @@
-﻿$ErrorActionPreference = 'SilentlyContinue'
-$wshell = New-Object -ComObject Wscript.Shell
-$Button = [System.Windows.MessageBoxButton]::YesNoCancel
-$ErrorIco = [System.Windows.MessageBoxImage]::Error
-If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
+﻿If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
 	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
 	Exit
 }
@@ -22,7 +18,6 @@ $Services = @(
 foreach($s in $Services){
     $Status = Get-Service -Name $s
     Set-Service -Name $s -StartupType Automatic -ErrorAction SilentlyContinue | Out-Null
-    #start services if they are not running!
     if(!($Status.Status -eq "Running")){
     Start-Service -Name $s -PassThru -ErrorAction SilentlyContinue | Out-Null
     }
