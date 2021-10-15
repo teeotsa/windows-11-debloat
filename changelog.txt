@@ -19,3 +19,12 @@ Fixed up some errors
 Removed HomeGroup Services
 Made some changes to services, had some errors while trying to disable them
 Fixed O&OSHUTUP10 Config Link
+
+Update 3 : 
+
+Added "ELSE" condition to scheduled tasks code part
+Added 'scheduledtasks_list.txt', from last upload it didn't upload these files for some reason. Should be 
+fixed now
+Added "ELSE" condition to remove bloatware code part
+Remade all of the restore scripts
+Added all required modules + lists
