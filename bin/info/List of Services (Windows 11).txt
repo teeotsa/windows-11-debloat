@@ -1,0 +1,262 @@
+Command to get services : "Get-Service -Name * | Select Name, DisplayName"
+
+Name                                     DisplayName
+----                                     -----------
+AarSvc_6273e                             Agent Activation Runtime_6273e
+AJRouter                                 AllJoyn Router Service
+ALG                                      Application Layer Gateway Service
+AppIDSvc                                 Application Identity
+Appinfo                                  Application Information
+AppMgmt                                  Application Management
+AppReadiness                             App Readiness
+AppVClient                               Microsoft App-V Client
+AppXSvc                                  AppX Deployment Service (AppXSVC)
+AssignedAccessManagerSvc                 AssignedAccessManager Service
+AudioEndpointBuilder                     Windows Audio Endpoint Builder
+Audiosrv                                 Windows Audio
+autotimesvc                              Cellular Time
+AxInstSV                                 ActiveX Installer (AxInstSV)
+BcastDVRUserService_6273e                GameDVR and Broadcast User Service_6273e
+BDESVC                                   BitLocker Drive Encryption Service
+BFE                                      Base Filtering Engine
+BITS                                     Background Intelligent Transfer Service
+BluetoothUserService_6273e               Bluetooth User Support Service_6273e
+BrokerInfrastructure                     Background Tasks Infrastructure Service
+BTAGService                              Bluetooth Audio Gateway Service
+BthAvctpSvc                              AVCTP service
+bthserv                                  Bluetooth Support Service
+camsvc                                   Capability Access Manager Service
+CaptureService_6273e                     CaptureService_6273e
+cbdhsvc_6273e                            Clipboard User Service_6273e
+CDPSvc                                   Connected Devices Platform Service
+CDPUserSvc_6273e                         Connected Devices Platform User Service_6273e
+CertPropSvc                              Certificate Propagation
+ClipSVC                                  Client License Service (ClipSVC)
+cloudidsvc                               Microsoft Cloud Identity Service
+COMSysApp                                COM+ System Application
+ConsentUxUserSvc_6273e                   ConsentUX User Service_6273e
+CoreMessagingRegistrar                   CoreMessaging
+CredentialEnrollmentManagerUserSvc_6273e CredentialEnrollmentManagerUserSvc_6273e
+CryptSvc                                 Cryptographic Services
+CscService                               Offline Files
+DcomLaunch                               DCOM Server Process Launcher
+defragsvc                                Optimize drives
+DeviceAssociationBrokerSvc_6273e         DeviceAssociationBroker_6273e
+DeviceAssociationService                 Device Association Service
+DeviceInstall                            Device Install Service
+DevicePickerUserSvc_6273e                DevicePicker_6273e
+DevicesFlowUserSvc_6273e                 DevicesFlow_6273e
+DevQueryBroker                           DevQuery Background Discovery Broker
+Dhcp                                     DHCP Client
+diagnosticshub.standardcollector.service Microsoft (R) Diagnostics Hub Standard Collector Service
+diagsvc                                  Diagnostic Execution Service
+DiagTrack                                Connected User Experiences and Telemetry
+DialogBlockingService                    DialogBlockingService
+DispBrokerDesktopSvc                     Display Policy Service
+DisplayEnhancementService                Display Enhancement Service
+DmEnrollmentSvc                          Device Management Enrollment Service
+dmwappushservice                         Device Management Wireless Application Protocol (WAP) Push message Routing ...
+Dnscache                                 DNS Client
+DoSvc                                    Delivery Optimization
+dot3svc                                  Wired AutoConfig
+DPS                                      Diagnostic Policy Service
+DsmSvc                                   Device Setup Manager
+DsSvc                                    Data Sharing Service
+DusmSvc                                  Data Usage
+EapHost                                  Extensible Authentication Protocol
+edgeupdate                               Microsoft Edge Update Service (edgeupdate)
+edgeupdatem                              Microsoft Edge Update Service (edgeupdatem)
+EFS                                      Encrypting File System (EFS)
+embeddedmode                             Embedded Mode
+EntAppSvc                                Enterprise App Management Service
+EventLog                                 Windows Event Log
+EventSystem                              COM+ Event System
+Fax                                      Fax
+fdPHost                                  Function Discovery Provider Host
+FDResPub                                 Function Discovery Resource Publication
+fhsvc                                    File History Service
+FontCache                                Windows Font Cache Service
+FrameServer                              Windows Camera Frame Server
+FrameServerMonitor                       Windows Camera Frame Server Monitor
+gpsvc                                    Group Policy Client
+GraphicsPerfSvc                          GraphicsPerfSvc
+hidserv                                  Human Interface Device Service
+HvHost                                   HV Host Service
+icssvc                                   Windows Mobile Hotspot Service
+IKEEXT                                   IKE and AuthIP IPsec Keying Modules
+InstallService                           Microsoft Store Install Service
+iphlpsvc                                 IP Helper
+IpxlatCfgSvc                             IP Translation Configuration Service
+KeyIso                                   CNG Key Isolation
+KtmRm                                    KtmRm for Distributed Transaction Coordinator
+LanmanServer                             Server
+LanmanWorkstation                        Workstation
+lfsvc                                    Geolocation Service
+LicenseManager                           Windows License Manager Service
+lltdsvc                                  Link-Layer Topology Discovery Mapper
+lmhosts                                  TCP/IP NetBIOS Helper
+LSM                                      Local Session Manager
+LxpSvc                                   Language Experience Service
+MapsBroker                               Downloaded Maps Manager
+McpManagementService                     McpManagementService
+MessagingService_6273e                   MessagingService_6273e
+MixedRealityOpenXRSvc                    Windows Mixed Reality OpenXR Service
+mpssvc                                   Windows Defender Firewall
+MSDTC                                    Distributed Transaction Coordinator
+MSiSCSI                                  Microsoft iSCSI Initiator Service
+msiserver                                Windows Installer
+MsKeyboardFilter                         Microsoft Keyboard Filter
+NaturalAuthentication                    Natural Authentication
+NcaSvc                                   Network Connectivity Assistant
+NcbService                               Network Connection Broker
+NcdAutoSetup                             Network Connected Devices Auto-Setup
+Netlogon                                 Netlogon
+Netman                                   Network Connections
+netprofm                                 Network List Service
+NetSetupSvc                              Network Setup Service
+NetTcpPortSharing                        Net.Tcp Port Sharing Service
+NgcCtnrSvc                               Microsoft Passport Container
+NgcSvc                                   Microsoft Passport
+NlaSvc                                   Network Location Awareness
+NPSMSvc_6273e                            NPSMSvc_6273e
+nsi                                      Network Store Interface Service
+OneSyncSvc_6273e                         Sync Host_6273e
+p2pimsvc                                 Peer Networking Identity Manager
+p2psvc                                   Peer Networking Grouping
+P9RdrService_6273e                       P9RdrService_6273e
+PcaSvc                                   Program Compatibility Assistant Service
+PeerDistSvc                              BranchCache
+PenService_6273e                         PenService_6273e
+perceptionsimulation                     Windows Perception Simulation Service
+PerfHost                                 Performance Counter DLL Host
+PhoneSvc                                 Phone Service
+PimIndexMaintenanceSvc_6273e             Contact Data_6273e
+pla                                      Performance Logs & Alerts
+PlugPlay                                 Plug and Play
+PNRPAutoReg                              PNRP Machine Name Publication Service
+PNRPsvc                                  Peer Name Resolution Protocol
+PolicyAgent                              IPsec Policy Agent
+Power                                    Power
+PrintNotify                              Printer Extensions and Notifications
+PrintWorkflowUserSvc_6273e               PrintWorkflow_6273e
+ProfSvc                                  User Profile Service
+PushToInstall                            Windows PushToInstall Service
+QWAVE                                    Quality Windows Audio Video Experience
+RasAuto                                  Remote Access Auto Connection Manager
+RasMan                                   Remote Access Connection Manager
+RemoteAccess                             Routing and Remote Access
+RemoteRegistry                           Remote Registry
+RetailDemo                               Retail Demo Service
+RmSvc                                    Radio Management Service
+RpcEptMapper                             RPC Endpoint Mapper
+RpcLocator                               Remote Procedure Call (RPC) Locator
+RpcSs                                    Remote Procedure Call (RPC)
+SamSs                                    Security Accounts Manager
+SCardSvr                                 Smart Card
+ScDeviceEnum                             Smart Card Device Enumeration Service
+Schedule                                 Task Scheduler
+SCPolicySvc                              Smart Card Removal Policy
+SDRSVC                                   Windows Backup
+seclogon                                 Secondary Logon
+SecurityHealthService                    Windows Security Service
+SEMgrSvc                                 Payments and NFC/SE Manager
+SENS                                     System Event Notification Service
+Sense                                    Windows Defender Advanced Threat Protection Service
+SensorDataService                        Sensor Data Service
+SensorService                            Sensor Service
+SensrSvc                                 Sensor Monitoring Service
+SessionEnv                               Remote Desktop Configuration
+SgrmBroker                               System Guard Runtime Monitor Broker
+SharedAccess                             Internet Connection Sharing (ICS)
+SharedRealitySvc                         Spatial Data Service
+ShellHWDetection                         Shell Hardware Detection
+shpamsvc                                 Shared PC Account Manager
+smphost                                  Microsoft Storage Spaces SMP
+SmsRouter                                Microsoft Windows SMS Router Service.
+SNMPTrap                                 SNMP Trap
+spectrum                                 Windows Perception Service
+Spooler                                  Print Spooler
+sppsvc                                   Software Protection
+SSDPSRV                                  SSDP Discovery
+ssh-agent                                OpenSSH Authentication Agent
+SstpSvc                                  Secure Socket Tunneling Protocol Service
+StateRepository                          State Repository Service
+StiSvc                                   Windows Image Acquisition (WIA)
+StorSvc                                  Storage Service
+svsvc                                    Spot Verifier
+swprv                                    Microsoft Software Shadow Copy Provider
+SysMain                                  SysMain
+SystemEventsBroker                       System Events Broker
+TabletInputService                       Touch Keyboard and Handwriting Panel Service
+TapiSrv                                  Telephony
+TermService                              Remote Desktop Services
+Themes                                   Themes
+TieringEngineService                     Storage Tiers Management
+TimeBrokerSvc                            Time Broker
+TokenBroker                              Web Account Manager
+TrkWks                                   Distributed Link Tracking Client
+TroubleshootingSvc                       Recommended Troubleshooting Service
+TrustedInstaller                         Windows Modules Installer
+tzautoupdate                             Auto Time Zone Updater
+UdkUserSvc_6273e                         Udk User Service_6273e
+UevAgentService                          User Experience Virtualization Service
+UmRdpService                             Remote Desktop Services UserMode Port Redirector
+UnistoreSvc_6273e                        User Data Storage_6273e
+upnphost                                 UPnP Device Host
+UserDataSvc_6273e                        User Data Access_6273e
+UserManager                              User Manager
+UsoSvc                                   Update Orchestrator Service
+VacSvc                                   Volumetric Audio Compositor Service
+VaultSvc                                 Credential Manager
+vds                                      Virtual Disk
+vmicguestinterface                       Hyper-V Guest Service Interface
+vmicheartbeat                            Hyper-V Heartbeat Service
+vmickvpexchange                          Hyper-V Data Exchange Service
+vmicrdv                                  Hyper-V Remote Desktop Virtualization Service
+vmicshutdown                             Hyper-V Guest Shutdown Service
+vmictimesync                             Hyper-V Time Synchronization Service
+vmicvmsession                            Hyper-V PowerShell Direct Service
+vmicvss                                  Hyper-V Volume Shadow Copy Requestor
+VSS                                      Volume Shadow Copy
+W32Time                                  Windows Time
+WaaSMedicSvc                             Windows Update Medic Service
+WalletService                            WalletService
+WarpJITSvc                               Warp JIT Service
+wbengine                                 Block Level Backup Engine Service
+WbioSrvc                                 Windows Biometric Service
+Wcmsvc                                   Windows Connection Manager
+wcncsvc                                  Windows Connect Now - Config Registrar
+WdiServiceHost                           Diagnostic Service Host
+WdiSystemHost                            Diagnostic System Host
+WdNisSvc                                 Microsoft Defender Antivirus Network Inspection Service
+WebClient                                WebClient
+Wecsvc                                   Windows Event Collector
+WEPHOSTSVC                               Windows Encryption Provider Host Service
+wercplsupport                            Problem Reports Control Panel Support
+WerSvc                                   Windows Error Reporting Service
+WFDSConMgrSvc                            Wi-Fi Direct Services Connection Manager Service
+WiaRpc                                   Still Image Acquisition Events
+WinDefend                                Microsoft Defender Antivirus Service
+WinHttpAutoProxySvc                      WinHTTP Web Proxy Auto-Discovery Service
+Winmgmt                                  Windows Management Instrumentation
+WinRM                                    Windows Remote Management (WS-Management)
+wisvc                                    Windows Insider Service
+WlanSvc                                  WLAN AutoConfig
+wlidsvc                                  Microsoft Account Sign-in Assistant
+wlpasvc                                  Local Profile Assistant Service
+WManSvc                                  Windows Management Service
+wmiApSrv                                 WMI Performance Adapter
+WMPNetworkSvc                            Windows Media Player Network Sharing Service
+workfolderssvc                           Work Folders
+WpcMonSvc                                Parental Controls
+WPDBusEnum                               Portable Device Enumerator Service
+WpnService                               Windows Push Notifications System Service
+WpnUserService_6273e                     Windows Push Notifications User Service_6273e
+wscsvc                                   Security Center
+WSearch                                  Windows Search
+wuauserv                                 Windows Update
+WwanSvc                                  WWAN AutoConfig
+XblAuthManager                           Xbox Live Auth Manager
+XblGameSave                              Xbox Live Game Save
+XboxGipSvc                               Xbox Accessory Management Service
+XboxNetApiSvc                            Xbox Live Networking Service

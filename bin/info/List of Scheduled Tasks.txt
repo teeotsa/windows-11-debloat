@@ -1,0 +1,201 @@
+\MicrosoftEdgeUpdateTaskMachineCore
+\MicrosoftEdgeUpdateTaskMachineUA
+\OneDrive Standalone Update Task-S-1-5-21-3035...
+\Microsoft\Windows\.NET Framework\ .NET Framework NGEN v4.0.30319
+\Microsoft\Windows\.NET Framework\ .NET Framework NGEN v4.0.30319 64
+\Microsoft\Windows\.NET Framework\ .NET Framework NGEN v4.0.30319 64 Critical
+\Microsoft\Windows\.NET Framework\ .NET Framework NGEN v4.0.30319 Critical
+\Microsoft\Windows\Active Directory Rights Management Services Client\ AD RMS Rights Policy Template Management (Aut...
+\Microsoft\Windows\Active Directory Rights Management Services Client\ AD RMS Rights Policy Template Management (Man...
+\Microsoft\Windows\AppID\EDP Policy Manager
+\Microsoft\Windows\AppID\PolicyConverter
+\Microsoft\Windows\AppID\VerifiedPublisherCertStoreCheck
+\Microsoft\Windows\Application Experience\ Microsoft Compatibility Appraiser
+\Microsoft\Windows\Application Experience\ PcaPatchDbTask
+\Microsoft\Windows\Application Experience\ ProgramDataUpdater
+\Microsoft\Windows\Application Experience\ StartupAppTask
+\Microsoft\Windows\ApplicationData\appuriverifierdaily
+\Microsoft\Windows\ApplicationData\appuriverifierinstall
+\Microsoft\Windows\ApplicationData\CleanupTemporaryState
+\Microsoft\Windows\ApplicationData\DsSvcCleanup
+\Microsoft\Windows\AppListBackup\Backup
+\Microsoft\Windows\AppxDeploymentClient\ Pre-staged app cleanup
+\Microsoft\Windows\Autochk\Proxy
+\Microsoft\Windows\BitLocker\BitLocker Encrypt All Drives
+\Microsoft\Windows\BitLocker\BitLocker MDM policy Refresh
+\Microsoft\Windows\Bluetooth\UninstallDeviceTask
+\Microsoft\Windows\BrokerInfrastructure\ BgTaskRegistrationMaintenanceTask
+\Microsoft\Windows\capabilityaccessmanager\maintenancetasks
+\Microsoft\Windows\CertificateServicesClient\AikCertEnrollTask
+\Microsoft\Windows\CertificateServicesClient\CryptoPolicyTask
+\Microsoft\Windows\CertificateServicesClient\KeyPreGenTask
+\Microsoft\Windows\CertificateServicesClient\SystemTask
+\Microsoft\Windows\CertificateServicesClient\UserTask
+\Microsoft\Windows\CertificateServicesClient\UserTask-Roam
+\Microsoft\Windows\Chkdsk\ ProactiveScan
+\Microsoft\Windows\Chkdsk\ SyspartRepair
+\Microsoft\Windows\Clip\ License Validation
+\Microsoft\Windows\CloudExperienceHost\CreateObjectTask
+\Microsoft\Windows\Customer Experience Improvement Program\Consolidator
+\Microsoft\Windows\Customer Experience Improvement Program\UsbCeip
+\Microsoft\Windows\Data Integrity Scan\Data Integrity Check And Scan
+\Microsoft\Windows\Data Integrity Scan\Data Integrity Scan
+\Microsoft\Windows\Data Integrity Scan\Data Integrity Scan for Crash Recovery
+\Microsoft\Windows\Defrag\ ScheduledDefrag
+\Microsoft\Windows\Device Information\ Device
+\Microsoft\Windows\Device Information\ Device User
+\Microsoft\Windows\Device Setup\ Metadata Refresh
+\Microsoft\Windows\DeviceDirectoryClient\HandleCommand
+\Microsoft\Windows\DeviceDirectoryClient\HandleWnsCommand
+\Microsoft\Windows\DeviceDirectoryClient\IntegrityCheck
+\Microsoft\Windows\DeviceDirectoryClient\LocateCommandUserSession
+\Microsoft\Windows\DeviceDirectoryClient\RegisterDeviceAccountChange
+\Microsoft\Windows\DeviceDirectoryClient\RegisterDeviceLocationRightsChange
+\Microsoft\Windows\DeviceDirectoryClient\RegisterDevicePeriodic24
+\Microsoft\Windows\DeviceDirectoryClient\RegisterDevicePolicyChange
+\Microsoft\Windows\DeviceDirectoryClient\RegisterDeviceProtectionStateChanged
+\Microsoft\Windows\DeviceDirectoryClient\RegisterDeviceSettingChange
+\Microsoft\Windows\DeviceDirectoryClient\RegisterUserDevice
+\Microsoft\Windows\Diagnosis\RecommendedTroubleshootingScanner
+\Microsoft\Windows\Diagnosis\Scheduled
+\Microsoft\Windows\DirectX\DirectXDatabaseUpdater
+\Microsoft\Windows\DirectX\DXGIAdapterCache
+\Microsoft\Windows\DiskCleanup\SilentCleanup
+\Microsoft\Windows\DiskDiagnostic\ Microsoft-Windows-DiskDiagnosticDataCollector
+\Microsoft\Windows\DiskDiagnostic\ Microsoft-Windows-DiskDiagnosticResolver
+\Microsoft\Windows\DiskFootprint\Diagnostics
+\Microsoft\Windows\DiskFootprint\StorageSense
+\Microsoft\Windows\DUSM\ dusmtask
+\Microsoft\Windows\EDP\EDP App Launch Task
+\Microsoft\Windows\EDP\EDP Auth Task
+\Microsoft\Windows\EDP\EDP Inaccessible Credentials Task
+\Microsoft\Windows\EDP\StorageCardEncryption Task
+\Microsoft\Windows\ExploitGuard\ ExploitGuard MDM policy Refresh
+\Microsoft\Windows\Feedback\Siuf\DmClient
+\Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload
+\Microsoft\Windows\File Classification Infrastructure\ Property Definition Sync
+\Microsoft\Windows\FileHistory\File History (maintenance mode)
+\Microsoft\Windows\Flighting\FeatureConfig\ReconcileFeatures
+\Microsoft\Windows\Flighting\FeatureConfig\UsageDataFlushing
+\Microsoft\Windows\Flighting\FeatureConfig\UsageDataReporting
+\Microsoft\Windows\Flighting\OneSettings\RefreshCache
+\Microsoft\Windows\Input\LocalUserSyncDataAvailable
+\Microsoft\Windows\Input\MouseSyncDataAvailable
+\Microsoft\Windows\Input\PenSyncDataAvailable
+\Microsoft\Windows\Input\TouchpadSyncDataAvailable
+\Microsoft\Windows\InstallService\ ScanForUpdates
+\Microsoft\Windows\InstallService\ ScanForUpdatesAsUser
+\Microsoft\Windows\InstallService\ SmartRetry
+\Microsoft\Windows\InstallService\ WakeUpAndContinueUpdates
+\Microsoft\Windows\InstallService\ WakeUpAndScanForUpdates
+\Microsoft\Windows\International\Synchronize Language Settings
+\Microsoft\Windows\Kernel\ La57Cleanup
+\Microsoft\Windows\LanguageComponentsInstaller\Installation
+\Microsoft\Windows\LanguageComponentsInstaller\ReconcileLanguageResources
+\Microsoft\Windows\LanguageComponentsInstaller\Uninstallation
+\Microsoft\Windows\License Manager\TempSignedLicenseExchange
+\Microsoft\Windows\Location\ Notifications
+\Microsoft\Windows\Location\ WindowsActionDialog
+\Microsoft\Windows\Maintenance\WinSAT
+\Microsoft\Windows\Management\Provisioning\Cellular
+\Microsoft\Windows\Management\Provisioning\Logon
+\Microsoft\Windows\Management\Provisioning\MdmDiagnosticsCleanup
+\Microsoft\Windows\Management\Provisioning\Retry
+\Microsoft\Windows\Management\Provisioning\RunOnReboot
+\Microsoft\Windows\Maps\ MapsToastTask
+\Microsoft\Windows\Maps\ MapsUpdateTask
+\Microsoft\Windows\MemoryDiagnostic\ ProcessMemoryDiagnosticEvents
+\Microsoft\Windows\MemoryDiagnostic\ RunFullMemoryDiagnostic
+\Microsoft\Windows\MUI\LPRemove
+\Microsoft\Windows\Multimedia\ SystemSoundsService
+\Microsoft\Windows\NetTrace\ GatherNetworkInfo
+\Microsoft\Windows\NlaSvc\ WiFiTask
+\Microsoft\Windows\Offline Files\Background Synchronization
+\Microsoft\Windows\Offline Files\Logon Synchronization
+\Microsoft\Windows\PI\ Secure-Boot-Update
+\Microsoft\Windows\PI\ Sqm-Tasks
+\Microsoft\Windows\Plug and Play\Device Install Group Policy
+\Microsoft\Windows\Plug and Play\Device Install Reboot Required
+\Microsoft\Windows\Plug and Play\Sysprep Generalize Drivers
+\Microsoft\Windows\Power Efficiency Diagnostics\ AnalyzeSystem
+\Microsoft\Windows\Printing\ EduPrintProv
+\Microsoft\Windows\Printing\ PrinterCleanupTask
+\Microsoft\Windows\PushToInstall\LoginCheck
+\Microsoft\Windows\PushToInstall\Registration
+\Microsoft\Windows\Ras\MobilityManager
+\Microsoft\Windows\RecoveryEnvironment\VerifyWinRE
+\Microsoft\Windows\Registry\ RegIdleBackup
+\Microsoft\Windows\RemoteAssistance\ RemoteAssistanceTask
+\Microsoft\Windows\RetailDemo\ CleanupOfflineContent
+\Microsoft\Windows\Servicing\StartComponentCleanup
+\Microsoft\Windows\Setup\SetupCleanupTask
+\Microsoft\Windows\SharedPC\ Account Cleanup
+\Microsoft\Windows\Shell\CreateObjectTask
+\Microsoft\Windows\Shell\FamilySafetyMonitor
+\Microsoft\Windows\Shell\FamilySafetyRefreshTask
+\Microsoft\Windows\Shell\IndexerAutomaticMaintenance
+\Microsoft\Windows\Shell\ThemesSyncedImageDownload
+\Microsoft\Windows\Shell\UpdateUserPictureTask
+\Microsoft\Windows\SoftwareProtectionPlatform\ SvcRestartTask
+\Microsoft\Windows\SoftwareProtectionPlatform\ SvcRestartTaskLogon
+\Microsoft\Windows\SoftwareProtectionPlatform\ SvcRestartTaskNetwork
+\Microsoft\Windows\SpacePort\SpaceAgentTask
+\Microsoft\Windows\SpacePort\SpaceManagerTask
+\Microsoft\Windows\Speech\ SpeechModelDownloadTask
+\Microsoft\Windows\StateRepository\MaintenanceTasks
+\Microsoft\Windows\Storage Tiers Management\ Storage Tiers Management Initialization
+\Microsoft\Windows\Storage Tiers Management\ Storage Tiers Optimization
+\Microsoft\Windows\Subscription\ EnableLicenseAcquisition
+\Microsoft\Windows\Subscription\ LicenseAcquisition
+\Microsoft\Windows\Sysmain\HybridDriveCachePrepopulate
+\Microsoft\Windows\Sysmain\HybridDriveCacheRebalance
+\Microsoft\Windows\Sysmain\ResPriStaticDbSync
+\Microsoft\Windows\Sysmain\WsSwapAssessmentTask
+\Microsoft\Windows\SystemRestore\SR
+\Microsoft\Windows\Task Manager\ Interactive
+\Microsoft\Windows\TextServicesFramework\MsCtfMonitor
+\Microsoft\Windows\Time Synchronization\ ForceSynchronizeTime
+\Microsoft\Windows\Time Synchronization\ SynchronizeTime
+\Microsoft\Windows\Time Zone\SynchronizeTimeZone
+\Microsoft\Windows\TPM\Tpm-HASCertRetr
+\Microsoft\Windows\TPM\Tpm-Maintenance
+\Microsoft\Windows\UNP\RunUpdateNotificationMgr
+\Microsoft\Windows\UpdateOrchestrator\ Report policies
+\Microsoft\Windows\UpdateOrchestrator\ Schedule Maintenance Work
+\Microsoft\Windows\UpdateOrchestrator\ Schedule Scan
+\Microsoft\Windows\UpdateOrchestrator\ Schedule Scan Static Task
+\Microsoft\Windows\UpdateOrchestrator\ Schedule Wake To Work
+\Microsoft\Windows\UpdateOrchestrator\ Schedule Work
+\Microsoft\Windows\UpdateOrchestrator\ Start Oobe Expedite Work
+\Microsoft\Windows\UpdateOrchestrator\ StartOobeAppsScan
+\Microsoft\Windows\UpdateOrchestrator\ StartOobeAppsScanAfterUpdate
+\Microsoft\Windows\UpdateOrchestrator\ UpdateModelTask
+\Microsoft\Windows\UpdateOrchestrator\ USO_UxBroker
+\Microsoft\Windows\UpdateOrchestrator\ UUS Failover Task
+\Microsoft\Windows\UPnP\ UPnPHostConfig
+\Microsoft\Windows\USB\Usb-Notifications
+\Microsoft\Windows\User Profile Service\ HiveUploadTask
+\Microsoft\Windows\WaaSMedic\PerformRemediation
+\Microsoft\Windows\WCM\WiFiTask
+\Microsoft\Windows\WDI\ResolutionHost
+\Microsoft\Windows\Windows Defender\ Windows Defender Cache Maintenance
+\Microsoft\Windows\Windows Defender\ Windows Defender Cleanup
+\Microsoft\Windows\Windows Defender\ Windows Defender Scheduled Scan
+\Microsoft\Windows\Windows Defender\ Windows Defender Verification
+\Microsoft\Windows\Windows Error Reporting\QueueReporting
+\Microsoft\Windows\Windows Filtering Platform\ BfeOnServiceStartTypeChange
+\Microsoft\Windows\Windows Media Sharing\UpdateLibrary
+\Microsoft\Windows\WindowsColorSystem\ Calibration Loader
+\Microsoft\Windows\WindowsUpdate\Scheduled Start
+\Microsoft\Windows\Wininet\CacheTask
+\Microsoft\Windows\WlanSvc\CDSSync
+\Microsoft\Windows\WOF\WIM-Hash-Management
+\Microsoft\Windows\WOF\WIM-Hash-Validation
+\Microsoft\Windows\Work Folders\ Work Folders Logon Synchronization
+\Microsoft\Windows\Work Folders\ Work Folders Maintenance Work
+\Microsoft\Windows\Workplace Join\ Automatic-Device-Join
+\Microsoft\Windows\Workplace Join\ Device-Sync
+\Microsoft\Windows\Workplace Join\ Recovery-Check
+\Microsoft\Windows\WwanSvc\NotificationTask
+\Microsoft\Windows\WwanSvc\OobeDiscovery
+\Microsoft\XblGameSave\XblGameSaveTask

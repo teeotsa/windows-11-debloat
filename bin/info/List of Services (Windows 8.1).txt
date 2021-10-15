@@ -1,0 +1,171 @@
+Command to get services : "Get-Service -Name * | Select Name, DisplayName"
+
+Name                          DisplayName
+----                          -----------
+AeLookupSvc                   Application Experience
+ALG                           Application Layer Gateway Service
+AppIDSvc                      Application Identity
+Appinfo                       Application Information
+AppMgmt                       Application Management
+AppReadiness                  App Readiness
+AppXSvc                       AppX Deployment Service (AppXSVC)
+AudioEndpointBuilder          Windows Audio Endpoint Builder
+Audiosrv                      Windows Audio
+AxInstSV                      ActiveX Installer (AxInstSV)
+BDESVC                        BitLocker Drive Encryption Service
+BFE                           Base Filtering Engine
+BITS                          Background Intelligent Transfer Service
+BrokerInfrastructure          Background Tasks Infrastructure Service
+BthHFSrv                      Bluetooth Handsfree Service
+bthserv                       Bluetooth Support Service
+CertPropSvc                   Certificate Propagation
+COMSysApp                     COM+ System Application
+CryptSvc                      Cryptographic Services
+CscService                    Offline Files
+DcomLaunch                    DCOM Server Process Launcher
+defragsvc                     Optimize drives
+DeviceAssociationService      Device Association Service
+DeviceInstall                 Device Install Service
+Dhcp                          DHCP Client
+Dnscache                      DNS Client
+dot3svc                       Wired AutoConfig
+DPS                           Diagnostic Policy Service
+DsmSvc                        Device Setup Manager
+Eaphost                       Extensible Authentication Protocol
+EFS                           Encrypting File System (EFS)
+EventLog                      Windows Event Log
+EventSystem                   COM+ Event System
+fdPHost                       Function Discovery Provider Host
+FDResPub                      Function Discovery Resource Publication
+fhsvc                         File History Service
+FontCache                     Windows Font Cache Service
+FontCache3.0.0.0              Windows Presentation Foundation Font Cache 3.0.0.0
+gpsvc                         Group Policy Client
+hidserv                       Human Interface Device Service
+hkmsvc                        Health Key and Certificate Management
+HomeGroupListener             HomeGroup Listener
+HomeGroupProvider             HomeGroup Provider
+IEEtwCollectorService         Internet Explorer ETW Collector Service
+IKEEXT                        IKE and AuthIP IPsec Keying Modules
+iphlpsvc                      IP Helper
+KeyIso                        CNG Key Isolation
+KtmRm                         KtmRm for Distributed Transaction Coordinator
+LanmanServer                  Server
+LanmanWorkstation             Workstation
+lfsvc                         Windows Location Framework Service
+lltdsvc                       Link-Layer Topology Discovery Mapper
+lmhosts                       TCP/IP NetBIOS Helper
+LSM                           Local Session Manager
+MMCSS                         Multimedia Class Scheduler
+MozillaMaintenance            Mozilla Maintenance Service
+MpsSvc                        Windows Firewall
+MSDTC                         Distributed Transaction Coordinator
+MSiSCSI                       Microsoft iSCSI Initiator Service
+msiserver                     Windows Installer
+MsKeyboardFilter              Microsoft Keyboard Filter
+napagent                      Network Access Protection Agent
+NcaSvc                        Network Connectivity Assistant
+NcbService                    Network Connection Broker
+NcdAutoSetup                  Network Connected Devices Auto-Setup
+Netlogon                      Netlogon
+Netman                        Network Connections
+netprofm                      Network List Service
+NetTcpPortSharing             Net.Tcp Port Sharing Service
+NlaSvc                        Network Location Awareness
+nsi                           Network Store Interface Service
+p2pimsvc                      Peer Networking Identity Manager
+p2psvc                        Peer Networking Grouping
+PcaSvc                        Program Compatibility Assistant Service
+PeerDistSvc                   BranchCache
+PerfHost                      Performance Counter DLL Host
+pla                           Performance Logs & Alerts
+PlugPlay                      Plug and Play
+PNRPAutoReg                   PNRP Machine Name Publication Service
+PNRPsvc                       Peer Name Resolution Protocol
+PolicyAgent                   IPsec Policy Agent
+Power                         Power
+PrintNotify                   Printer Extensions and Notifications
+ProfSvc                       User Profile Service
+QWAVE                         Quality Windows Audio Video Experience
+RasAuto                       Remote Access Auto Connection Manager
+RasMan                        Remote Access Connection Manager
+RemoteAccess                  Routing and Remote Access
+RemoteRegistry                Remote Registry
+RpcEptMapper                  RPC Endpoint Mapper
+RpcLocator                    Remote Procedure Call (RPC) Locator
+RpcSs                         Remote Procedure Call (RPC)
+SamSs                         Security Accounts Manager
+SCardSvr                      Smart Card
+ScDeviceEnum                  Smart Card Device Enumeration Service
+Schedule                      Task Scheduler
+SCPolicySvc                   Smart Card Removal Policy
+seclogon                      Secondary Logon
+SENS                          System Event Notification Service
+SensrSvc                      Sensor Monitoring Service
+SessionEnv                    Remote Desktop Configuration
+SharedAccess                  Internet Connection Sharing (ICS)
+ShellHWDetection              Shell Hardware Detection
+smphost                       Microsoft Storage Spaces SMP
+SNMPTRAP                      SNMP Trap
+Spooler                       Print Spooler
+sppsvc                        Software Protection
+SSDPSRV                       SSDP Discovery
+SstpSvc                       Secure Socket Tunneling Protocol Service
+stisvc                        Windows Image Acquisition (WIA)
+StorSvc                       Storage Service
+svsvc                         Spot Verifier
+swprv                         Microsoft Software Shadow Copy Provider
+SysMain                       Superfetch
+SystemEventsBroker            System Events Broker
+TabletInputService            Touch Keyboard and Handwriting Panel Service
+TapiSrv                       Telephony
+TermService                   Remote Desktop Services
+Themes                        Themes
+THREADORDER                   Thread Ordering Server
+TimeBroker                    Time Broker
+TrkWks                        Distributed Link Tracking Client
+TrustedInstaller              Windows Modules Installer
+UI0Detect                     Interactive Services Detection
+UmRdpService                  Remote Desktop Services UserMode Port Redirector
+upnphost                      UPnP Device Host
+VaultSvc                      Credential Manager
+vds                           Virtual Disk
+vmicguestinterface            Hyper-V Guest Service Interface
+vmicheartbeat                 Hyper-V Heartbeat Service
+vmickvpexchange               Hyper-V Data Exchange Service
+vmicrdv                       Hyper-V Remote Desktop Virtualization Service
+vmicshutdown                  Hyper-V Guest Shutdown Service
+vmictimesync                  Hyper-V Time Synchronization Service
+vmicvss                       Hyper-V Volume Shadow Copy Requestor
+VSS                           Volume Shadow Copy
+W32Time                       Windows Time
+wbengine                      Block Level Backup Engine Service
+WbioSrvc                      Windows Biometric Service
+Wcmsvc                        Windows Connection Manager
+wcncsvc                       Windows Connect Now - Config Registrar
+WcsPlugInService              Windows Color System
+WdiServiceHost                Diagnostic Service Host
+WdiSystemHost                 Diagnostic System Host
+WdNisSvc                      Windows Defender Network Inspection Service
+WebClient                     WebClient
+Wecsvc                        Windows Event Collector
+WEPHOSTSVC                    Windows Encryption Provider Host Service
+wercplsupport                 Problem Reports and Solutions Control Panel Support
+WerSvc                        Windows Error Reporting Service
+WiaRpc                        Still Image Acquisition Events
+WinDefend                     Windows Defender Service
+WinHttpAutoProxySvc           WinHTTP Web Proxy Auto-Discovery Service
+Winmgmt                       Windows Management Instrumentation
+WinRM                         Windows Remote Management (WS-Management)
+WlanSvc                       WLAN AutoConfig
+wlidsvc                       Microsoft Account Sign-in Assistant
+wmiApSrv                      WMI Performance Adapter
+WMPNetworkSvc                 Windows Media Player Network Sharing Service
+WPCSvc                        Family Safety
+WPDBusEnum                    Portable Device Enumerator Service
+wscsvc                        Security Center
+WSearch                       Windows Search
+WSService                     Windows Store Service (WSService)
+wuauserv                      Windows Update
+wudfsvc                       Windows Driver Foundation - User-mode Driver Framework
+WwanSvc                       WWAN AutoConfig
