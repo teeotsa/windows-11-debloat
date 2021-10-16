@@ -28,3 +28,7 @@ fixed now
 Added "ELSE" condition to remove bloatware code part
 Remade all of the restore scripts
 Added all required modules + lists
+
+Update 4 : 
+
+Added "NSudo" into debloater's folder again so "disablewindowsdefender.ps1" should work now

@@ -1,0 +1,9 @@
+﻿{
+  "ShortCutList_V2": {
+    "Command Prompt": "cmd",
+    "PowerShell": "powershell",
+    "PowerShell ISE": "powershell_ise",
+    "Hosts": "notepad %windir%\\System32\\Drivers\\etc\\hosts",
+	"Services" : "services.msc"
+  }
+}
