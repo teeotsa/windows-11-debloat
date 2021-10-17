@@ -1,5 +1,7 @@
 # This script is just edited version of Teeotsa's Windows 10 Debloater script!
 
+# Latest Update : Update 4
+
 Add-Type -AssemblyName System.Windows.Forms
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
@@ -196,11 +198,13 @@ $essentialtweaks.Add_Click({
     Enable-ComputerRestore -Drive "$env:SystemDrive"
     Checkpoint-Computer -Description "RestorePoint1" -RestorePointType "MODIFY_SETTINGS"
 
-    Write-Host "Running O&O Shutup with Not Recommended Settings"
-    Import-Module BitsTransfer
-    Start-BitsTransfer -Source "https://raw.githubusercontent.com/teeotsa/windows-10-debloat/main/ooshutup10.cfg" -Destination ooshutup10.cfg
-    Start-BitsTransfer -Source "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe" -Destination OOSU10.exe
-    ./OOSU10.exe ooshutup10.cfg /quiet
+    # Update 4 : Temporarily disabled O&OSHUTUP Part (Will be enabled later on)
+
+    #Write-Host "Running O&O Shutup with Not Recommended Settings"
+    #Import-Module BitsTransfer
+    #Start-BitsTransfer -Source "https://raw.githubusercontent.com/teeotsa/windows-10-debloat/main/ooshutup10.cfg" -Destination ooshutup10.cfg
+    #Start-BitsTransfer -Source "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe" -Destination OOSU10.exe
+    #./OOSU10.exe ooshutup10.cfg /quiet
 
     Write-Host "Disabling Telemetry..."
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0
@@ -261,14 +265,14 @@ $essentialtweaks.Add_Click({
     Write-Host "Disabling Error reporting..."
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting" -Name "Disabled" -Type DWord -Value 1
     Disable-ScheduledTask -TaskName "Microsoft\Windows\Windows Error Reporting\QueueReporting" | Out-Null
-    Write-Host "Restricting Windows Update P2P only to local network..."
-    if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization")){
-        New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization" | Out-Null
-    }
-    If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config")) {
-        New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" | Out-Null
-    }
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -Type DWord -Value 1
+    #Write-Host "Restricting Windows Update P2P only to local network..."
+    #if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization")){
+    #    New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization" | Out-Null
+    #}
+    #If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config")) {
+    #    New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" | Out-Null
+    #}
+    #Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -Type DWord -Value 1
     Write-Host "Stopping and disabling Diagnostics Tracking Service..."
     Stop-Service "DiagTrack" -WarningAction SilentlyContinue
     Set-Service "DiagTrack" -StartupType Disabled
@@ -360,20 +364,20 @@ $essentialtweaks.Add_Click({
     Write-Host "Disabling some services and scheduled tasks"
 
     $Services = @(
-        "*xbox*" # Xbox Services
-        "*Xbl*" # Xbox Services
+        #"*xbox*" # Xbox Services
+        #"*Xbl*" # Xbox Services
         "LanmanWorkstation"
         "workfolderssvc"
         #"WinHttpAutoProxySvc" # NSudo Required
         "WSearch" # Windows Search
-        "PushToInstall" # Needed for Microsoft Store
+        #"PushToInstall" # Needed for Microsoft Store
         "icssvc" # Mobile Hotspot
         "MixedRealityOpenXRSvc" # Mixed Reality
         "WMPNetworkSvc" # Windows Media Player Sharing
-        "LicenseManager" # License Manager for Microsoft Store
+        #"LicenseManager" # License Manager for Microsoft Store
         "wisvc" # Insider Program
         "WerSvc" # Error Reporting
-        "WalletService" # Wallet Service
+        #"WalletService" # Wallet Service
         "lmhosts" # TCP/IP NetBIOS Helper
         "SysMain" # SuperFetch 
         "svsvc" # Spot Verifier
@@ -397,16 +401,16 @@ $essentialtweaks.Add_Click({
         "Spooler" # Print Spooler
         "PrintNotify" # Printer Extensions and Notifications
         "PhoneSvc" # Phone Service
-        "SEMgrSvc" # Payments and NFC/SE Manager
+        #"SEMgrSvc" # Payments and NFC/SE Manager
         "WpcMonSvc" # Parental Controls
         "CscService" # Offline Files
-        "InstallService" # Microsoft Store Install Service
-        "SmsRouter" # Microsoft Windows SMS Router Service
-        "smphost" # Microsoft Storage Spaces SMP
+        #"InstallService" # Microsoft Store Install Service
+        #"SmsRouter" # Microsoft Windows SMS Router Service
+        #"smphost" # Microsoft Storage Spaces SMP
         #"NgcCtnrSvc" # Microsoft Passport Container
         "MsKeyboardFilter" # Microsoft Keyboard Filter
         "cloudidsvc" # Microsoft Cloud Identity Service
-        "wlidsvc" # Microsoft Account Sign-in Assistant
+        #"wlidsvc" # Microsoft Account Sign-in Assistant
         "*diagnosticshub*" # Microsoft (R) Diagnostics Hub Standard Collector Service
         "iphlpsvc" # IP Helper
         "lfsvc" # Geolocation Service
@@ -422,7 +426,7 @@ $essentialtweaks.Add_Click({
         #"DoSvc" # Delivery Optimization
         "DusmSvc" # Data Usage
         "VaultSvc" # Credential Manager
-        "AppReadiness" # App Readiness
+        #"AppReadiness" # App Readiness
     )
 
     foreach ($Services in $Services) {
@@ -508,13 +512,13 @@ $essentialtweaks.Add_Click({
     Set-ItemProperty -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowAutoConnectToWiFiSenseHotspots" -Name "Value" -Type DWord -Value 0
     write-Host "Wi-Fi Sense has been disabled"
     #>
-    write-Host "Disabled Windows Firewall"
-    Set-NetFirewallProfile -Profile * -Enabled False
-    if (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows Defender")){
-        New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows Defender" -Force | Out-Null
-    }
-    Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -Type DWord -Value 1
-    write-Host "Disabled Windows Defender (via Registry)"
+    #write-Host "Disabled Windows Firewall"
+    #Set-NetFirewallProfile -Profile * -Enabled False
+    #if (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows Defender")){
+    #    New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows Defender" -Force | Out-Null
+    #}
+    #Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -Type DWord -Value 1
+    #write-Host "Disabled Windows Defender (via Registry)"
     <#
     if (!(Test-Path "HKLM:\System\CurrentControlSet\Control\Terminal Server")){
         New-Item -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -Force | Out-Null
@@ -719,7 +723,7 @@ $essentialtweaks.Add_Click({
     New-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\54533251-82be-4824-96c1-47b60b740d00\3b04d4fd-1cc7-4f23-ab1c-d1337819c4bb\DefaultPowerSchemeValues\381b4222-f694-41f0-9685-ff5bb260df2e' -Name 'ACSettingIndex' -Value 0 -PropertyType DWord -Force -ea SilentlyContinue;
     New-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\54533251-82be-4824-96c1-47b60b740d00\3b04d4fd-1cc7-4f23-ab1c-d1337819c4bb\DefaultPowerSchemeValues\381b4222-f694-41f0-9685-ff5bb260df2e' -Name 'DCSettingIndex' -Value 0 -PropertyType DWord -Force -ea SilentlyContinue;
     New-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\54533251-82be-4824-96c1-47b60b740d00\3b04d4fd-1cc7-4f23-ab1c-d1337819c4bb\DefaultPowerSchemeValues\8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c' -Name 'ACSettingIndex' -Value 0 -PropertyType DWord -Force -ea SilentlyContinue;
-    New-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender' -Name 'DisableAntiSpyware' -Value 1 -PropertyType DWord -Force -ea SilentlyContinue;
+    #New-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender' -Name 'DisableAntiSpyware' -Value 1 -PropertyType DWord -Force -ea SilentlyContinue;
 
     Start-Sleep -Seconds 1
     Stop-Process -Name explorer -Force -PassThru

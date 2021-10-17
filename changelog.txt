@@ -1,5 +1,4 @@
 Update 1 : 
-
 Remade 'Remove Bloatware' code part! Now script loads Bloatware Packages list from text file located in bin folder.
 Removed Registry Tweaks for Immersive Control Panel.
 Removed some Bloatware modifications.
@@ -14,14 +13,12 @@ UAC wont be disabled now via script
 Made tweaks to 'Disable Windows Defender' script. Defender should not re-enable itself now!
 
 Update 2 : 
-
 Fixed up some errors
 Removed HomeGroup Services
 Made some changes to services, had some errors while trying to disable them
 Fixed O&OSHUTUP10 Config Link
 
 Update 3 : 
-
 Added "ELSE" condition to scheduled tasks code part
 Added 'scheduledtasks_list.txt', from last upload it didn't upload these files for some reason. Should be 
 fixed now
@@ -30,5 +27,10 @@ Remade all of the restore scripts
 Added all required modules + lists
 
 Update 4 : 
-
 Added "NSudo" into debloater's folder again so "disablewindowsdefender.ps1" should work now
+
+Update 5 :
+Changed some stuff with bloatware list. Commented out [Windows Store, Windows Store Purchase, Gaming Apps, Account Control, Runtimes, Desktop App Installer]
+Temporarily disabled O&OSHUTUP Part (Will be enabled later on. Have to remake config)
+Commented out some code that prevented the user to install & download updates
+Commented out code part where script disabled Windows Firewall & Windows Defender via Registry
