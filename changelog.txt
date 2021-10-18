@@ -45,7 +45,7 @@ Replaced "Small Taskbar Button" with "Toggle Small Taskbar" button
 Added "otherScripts" folder. Read more from text file located there
 Temporarily removed o&oshutup10 config file
 
-Commented out some scheduled tasks from the list 
+Commented out some scheduled tasks from the list :
 ----------------------------------------------------------------------
 [ \Microsoft\Windows\LicenseManager\TempSignedLicenseExchange        ]
 [ \Microsoft\Windows\Subscription\EnableLicenseAcquisition           ]
