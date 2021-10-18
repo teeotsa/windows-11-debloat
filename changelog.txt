@@ -34,3 +34,33 @@ Changed some stuff with bloatware list. Commented out [Windows Store, Windows St
 Temporarily disabled O&OSHUTUP Part (Will be enabled later on. Have to remake config)
 Commented out some code that prevented the user to install & download updates
 Commented out code part where script disabled Windows Firewall & Windows Defender via Registry
+
+Update 6 :
+Commented out "Enable-ScheduledTask -TaskName "\Microsoft\Windows\WaaSMedic\PerformRemediation" | Out-Null" because enabling this task requires special premissions.
+Commented out "Disable-ScheduledTask -TaskName "\Microsoft\Windows\WaaSMedic\PerformRemediation" | Out-Null" because disabling this task requires special premissions.
+Tweaked Light & Dark Mode code abit
+Tweaked OneDrive Code abit
+Added custom cmdlet to test if Registry keys exist
+Replaced "Small Taskbar Button" with "Toggle Small Taskbar" button
+Added "otherScripts" folder. Read more from text file located there
+Temporarily removed o&oshutup10 config file
+
+Commented out some scheduled tasks from the list 
+----------------------------------------------------------------------
+[ \Microsoft\Windows\LicenseManager\TempSignedLicenseExchange        ]
+[ \Microsoft\Windows\Subscription\EnableLicenseAcquisition           ]
+[ \Microsoft\Windows\Subscription\LicenseAcquisition                 ]
+[ \Microsoft\Windows\UpdateOrchestrator\Reportpolicies               ]
+[ \Microsoft\Windows\UpdateOrchestrator\ScheduleMaintenanceWork      ]
+[ \Microsoft\Windows\UpdateOrchestrator\ScheduleScan                 ]
+[ \Microsoft\Windows\UpdateOrchestrator\ScheduleScanStaticTask       ]
+[ \Microsoft\Windows\UpdateOrchestrator\ScheduleWakeToWork           ]
+[ \Microsoft\Windows\UpdateOrchestrator\ScheduleWork                 ]
+[ \Microsoft\Windows\UpdateOrchestrator\StartOobeExpediteWork        ]
+[ \Microsoft\Windows\UpdateOrchestrator\StartOobeAppsScan            ]
+[ \Microsoft\Windows\UpdateOrchestrator\StartOobeAppsScanAfterUpdate ]
+[ \Microsoft\Windows\UpdateOrchestrator\UpdateModelTask              ]
+[ \Microsoft\Windows\UpdateOrchestrator\USO_UxBroker                 ]
+[ \Microsoft\Windows\UpdateOrchestrator\UUSFailoverTask              ]
+[ \Microsoft\Windows\UPnP\UPnPHostConfig                             ]
+----------------------------------------------------------------------

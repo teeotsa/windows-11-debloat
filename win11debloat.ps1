@@ -133,12 +133,12 @@ $enablewindowsupdate.location    = New-Object System.Drawing.Point($OtherTweaksL
 $enablewindowsupdate.Font        = New-Object System.Drawing.Font('Microsoft Sans Serif',14)
 
 $smalltaskbaricons               = New-Object system.Windows.Forms.Button
-$smalltaskbaricons.text          = "Use Small Taskbar"
+$smalltaskbaricons.text          = "Toggle Small Taskbar"
 $smalltaskbaricons.width         = 250
 $smalltaskbaricons.height        = 30
 $smalltaskbaricons.location      = New-Object System.Drawing.Point($OtherTweaksLeft,136)
 $smalltaskbaricons.Font          = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
- 
+
 $RemoveTakeOwnership             = New-Object system.Windows.Forms.Button
 $RemoveTakeOwnership.text        = "Remove Take Ownership"
 $RemoveTakeOwnership.width       = 250
@@ -188,6 +188,31 @@ function restartExplorer
         Start-Process -FilePath "explorer"  | Out-Null
     }
 }
+
+# Update 6 : Added custom cmdlet
+
+function Test-RegistryValue {
+    param (
+     [parameter(Mandatory=$true)]
+
+     [ValidateNotNullOrEmpty()]$Path,
+
+ 
+
+     [parameter(Mandatory=$true)]
+
+     [ValidateNotNullOrEmpty()]$Value
+    )
+    try {
+
+        Get-ItemProperty -Path $Path | Select-Object -ExpandProperty $Value -ErrorAction Stop | Out-Null
+            return $true
+    }
+    catch {
+        return $false
+    }
+}
+
 
 
 $Form.controls.AddRange(@($MiscLabel,$EditScript,$TakeOwnership,$UninstallEdge,$AdminAccount,$RemoveBloat,$disablewindowsupdate,$enablewindowsupdate,$smalltaskbaricons,$Label16,$Label17,$Label18,$Label19,$RemoveTakeOwnership,$Panel1,$Panel2,$Label3,$Label15,$Panel4,$PictureBox1,$Label1,$Label4,$Panel3,$essentialtweaks,$backgroundapps,$cortana,$actioncenter,$darkmode,$visualfx,$onedrive,$lightmode))
@@ -369,7 +394,7 @@ $essentialtweaks.Add_Click({
         "LanmanWorkstation"
         "workfolderssvc"
         #"WinHttpAutoProxySvc" # NSudo Required
-        "WSearch" # Windows Search
+        #"WSearch" # Windows Search
         #"PushToInstall" # Needed for Microsoft Store
         "icssvc" # Mobile Hotspot
         "MixedRealityOpenXRSvc" # Mixed Reality
@@ -379,7 +404,7 @@ $essentialtweaks.Add_Click({
         "WerSvc" # Error Reporting
         #"WalletService" # Wallet Service
         "lmhosts" # TCP/IP NetBIOS Helper
-        "SysMain" # SuperFetch 
+        "SysMain" # SuperFetch
         "svsvc" # Spot Verifier
         #"sppsvc" # Software Protection
         "SCPolicySvc" # Smart Card Removal Policy
@@ -432,11 +457,11 @@ $essentialtweaks.Add_Click({
     foreach ($Services in $Services) {
     Get-Service -Name $Services -ErrorAction SilentlyContinue | Set-Service -StartupType Disabled
         $running = Get-Service -Name $Services -ErrorAction SilentlyContinue | Where-Object {$_.Status -eq 'Running'}
-        if ($running) { 
+        if ($running) {
             Stop-Service -Name $Services -Force -PassThru | Out-Null
         }
     }
-   
+
     if (Test-Path "$PSScriptRoot\bin\scheduledtasks_list.txt"){
         $Lines = Get-Content -Path "$PSScriptRoot\bin\scheduledtasks_list.txt"
             foreach($Task in $Lines){
@@ -484,7 +509,7 @@ $essentialtweaks.Add_Click({
     }
     Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ConsentPromptBehaviorAdmin" -Type DWord -Value 0
     Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "PromptOnSecureDesktop" -Type DWord -Value 0
-    write-Host "UAC has been disabled"   
+    write-Host "UAC has been disabled"
     #>
     If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo")) {
 	New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" | Out-Null
@@ -578,7 +603,7 @@ $essentialtweaks.Add_Click({
     Get-ChildItem -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings" | ForEach {
         Set-ItemProperty -Path $_.PsPath -Name "Enabled" -Type DWord -Value 0
         Set-ItemProperty -Path $_.PsPath -Name "LastNotificationAddedTime" -Type QWord -Value "0"
-    }    
+    }
     if (!(Test-Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\PushNotifications")){
         New-Item -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\PushNotifications" -Force | Out-Null
     }
@@ -888,10 +913,14 @@ $onedrive.Add_Click({
     }
     Remove-Item -Path "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
     Remove-Item -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
-    foreach ($item in (Get-ChildItem "$env:WinDir\WinSxS\*onedrive*")) {
-    Takeown-Folder $item.FullName
-    Remove-Item -Recurse -Force $item.FullName
-    }
+
+	# Update 6 : Deleting OneDrive setup files requires special premissions, that is the reason why this part of the code
+	# is commented out
+    #foreach ($item in (Get-ChildItem "$env:WinDir\WinSxS\*onedrive*")) {
+    #Takeown-Folder $item.FullName
+    #Remove-Item -Recurse -Force $item.FullName
+    #}
+
     Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "$env:localappdata\Microsoft\OneDrive"
     Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "$env:programdata\Microsoft OneDrive"
     Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "$env:systemdrive\OneDriveTemp"
@@ -916,10 +945,13 @@ $darkmode.Add_Click({
     }
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type DWord -Value 0
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Type DWord -Value 0
-    reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes" /f
-    reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /f
-    reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" /t "REG_DWORD" /d "0" /f
-    reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "SystemUsesLightTheme" /t "REG_DWORD" /d "0" /f
+
+	# Update 6 : Tweaked this part of the code! Should be faster now to switch between themes
+    #reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes" /f
+    #reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /f
+    #reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" /t "REG_DWORD" /d "0" /f
+    #reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "SystemUsesLightTheme" /t "REG_DWORD" /d "0" /f
+
     restartExplorer
     Write-Host "Enabled Dark Mode"
 })
@@ -939,10 +971,13 @@ $lightmode.Add_Click({
     }
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type DWord -Value 1
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Type DWord -Value 1
-    reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes" /f
-    reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /f
-    reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" /t "REG_DWORD" /d "1" /f
-    reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "SystemUsesLightTheme" /t "REG_DWORD" /d "1" /f
+
+	# Update 6 : Tweaked this part of the code! Should be faster now to switch between themes
+    #reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes" /f
+    #reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /f
+    #reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" /t "REG_DWORD" /d "1" /f
+    #reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "SystemUsesLightTheme" /t "REG_DWORD" /d "1" /f
+
     restartExplorer
     Write-Host "Switched Back to Light Mode"
 })
@@ -954,13 +989,15 @@ $disablewindowsupdate.Add_Click({
         Stop-Service -Name $S -PassThru -ErrorAction SilentlyContinue | Out-Null
     }
     Disable-ScheduledTask -TaskName "\Microsoft\Windows\WindowsUpdate\Scheduled Start" | Out-Null
-    Disable-ScheduledTask -TaskName "\Microsoft\Windows\WaaSMedic\PerformRemediation" | Out-Null
+
+	# Update 6 : Commented out "Disable-ScheduledTask -TaskName "\Microsoft\Windows\WaaSMedic\PerformRemediation" | Out-Null" because
+	# disabling this task requires special premissions.
 
     if (!(Test-Path "HKLM:\Software\Microsoft\WindowsUpdate\UX\Settings")){
         New-Item -Path "HKLM:\Software\Microsoft\WindowsUpdate\UX\Settings" -Force | Out-Null
     }
     Set-ItemProperty -Path "HKLM:\Software\Microsoft\WindowsUpdate\UX\Settings" -Name "UxOption" -Type DWord -Value 1
-    
+
     Stop-Process -Name "MoUsoCoreWorker" -Force -PassThru -ErrorAction SilentlyContinue | Out-Null
     Stop-Process -Name "TiWorker" -Force -PassThru -ErrorAction SilentlyContinue | Out-Null
 
@@ -974,7 +1011,9 @@ $enablewindowsupdate.Add_Click({
         Start-Service -Name $S -PassThru -ErrorAction SilentlyContinue | Out-Null
     }
     Enable-ScheduledTask -TaskName "\Microsoft\Windows\WindowsUpdate\Scheduled Start" | Out-Null
-    Enable-ScheduledTask -TaskName "\Microsoft\Windows\WaaSMedic\PerformRemediation" | Out-Null
+
+    # Update 6 : Commented out "Enable-ScheduledTask -TaskName "\Microsoft\Windows\WaaSMedic\PerformRemediation" | Out-Null" because
+	# enabling this task requires special premissions.
 
     if (!(Test-Path "HKLM:\Software\Microsoft\WindowsUpdate\UX\Settings")){
         New-Item -Path "HKLM:\Software\Microsoft\WindowsUpdate\UX\Settings" -Force | Out-Null
@@ -985,10 +1024,26 @@ $enablewindowsupdate.Add_Click({
 })
 
 $smalltaskbaricons.Add_Click({
-    if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")){
-        New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
+
+# 1 : Normal Size
+# 0 : Small Size
+
+if ((Test-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Value TaskbarSi) -eq $false){
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name TaskbarSi -Value 0
+}
+
+$GetValue = Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarSi"
+
+    if ($GetValue.TaskbarSi -eq "0"){
+        # Normal Taskbar Size
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name TaskbarSi -Value 1
+        restartExplorer
+        return;
     }
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name TaskbarSi -Type DWord -Value 0
+
+    # Small Taskbar Size
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name TaskbarSi -Value 0
+
     restartExplorer
 })
 
@@ -1007,7 +1062,7 @@ $RemoveTakeOwnership.Add_Click({
         }
         write-Host "'Take Ownership' context menu is gone!"
     } else {
-        Clear-Host 
+        Clear-Host
         Write-Host "Can't find `"Take Ownership`" registry keys. It might be already removed?" -ForegroundColor Yellow -BackgroundColor Black
     }
 })
@@ -1016,7 +1071,7 @@ $RemoveBloat.Add_Click({
     if (Test-Path "$PSScriptRoot\bin\bloatware_list.txt"){
         $BloatwareList = Get-Content -Path "$PSScriptRoot\bin\bloatware_list.txt"
         foreach($Line in $BloatwareList){
-            Get-AppxPackage $Line | Remove-AppxPackage -ErrorAction SilentlyContinue 
+            Get-AppxPackage $Line | Remove-AppxPackage -ErrorAction SilentlyContinue
         }
     } else {
         # Update 3 : Added ELSE condition
@@ -1108,7 +1163,7 @@ if(Test-Path "C:\Program Files (x86)\Microsoft\Edge\Application"){
     if (Test-Path "HKLM:\SYSTEM\CurrentControlSet\Services\edgeupdatem"){
         Remove-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\edgeupdatem" -Force | Out-Null
     }
-    
+
     write-Host "'Microsoft Edge' is now removed!"
 
 } else {
@@ -1152,7 +1207,7 @@ $TakeOwnership.Add_Click({
         New-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Classes\Directory\shell\TakeOwnership\command' -Name 'IsolatedCommand' -Value 'powershell -windowstyle hidden -command "Start-Process cmd -ArgumentList ''/c takeown /f \"%1\" /r /d y && icacls \"%1\" /grant *S-1-3-4:F /c /l /q'' -Verb runAs' -PropertyType String -Force -ea SilentlyContinue;
         write-Host "'Take Ownership' is added into context menu!"
     } else {
-        Clear-Host 
+        Clear-Host
         Write-Host "You already have `"Take Onwership`" added into your context menu!" -ForegroundColor Yellow -BackgroundColor Black
     }
 
