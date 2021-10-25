@@ -3,6 +3,6 @@
 	Exit
 }
 $DS = Get-Service | Where-Object{$_.StartType -eq "Disabled"}
-foreach($Service in ($DS.Name)){
+foreach($Service in $DS.Name){
     Set-Service -Name $Service -StartupType Manual
 }

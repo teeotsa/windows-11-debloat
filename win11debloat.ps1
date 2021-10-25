@@ -1,15 +1,21 @@
 # This script is just edited version of Teeotsa's Windows 10 Debloater script!
 
-# Latest Update : Update 4
+# Latest Update : Update 7
 
 Add-Type -AssemblyName System.Windows.Forms
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
-$WindowsVersion = [System.Environment]::OSVersion.Version
-if ($WindowsVersion.Build -lt "22000"){
-    Write-Host "This script was made only for Windows 11. Script will be closed in 5 seconds!" -ForegroundColor Yellow -BackgroundColor Black
-    Start-Sleep -Seconds 5
-    exit;
+
+# Update 7 : Added this "*switch*" to disable version checking, just change $False to $True to bypass
+$BypassWindowsVersionChecking = $True
+
+if($BypassWindowsVersionChecking -eq $False){
+    $WindowsVersion = [System.Environment]::OSVersion.Version
+    if ($WindowsVersion.Build -lt "22000"){
+        Write-Host "This script was made only for Windows 11. Script will be closed in 5 seconds!" -ForegroundColor Yellow -BackgroundColor Black
+        Start-Sleep -Seconds 5
+        exit;
+    }
 }
 
 # Launch Script as administrator!
@@ -168,18 +174,6 @@ $EditScript.height               = 30
 $EditScript.location             = New-Object System.Drawing.Point($OtherTweaksLeft,305)
 $EditScript.Font                 = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
-$AdminAccount                    = new-object System.Windows.Forms.checkbox
-$AdminAccount.Location           = new-object System.Drawing.Size(42,455)
-$AdminAccount.Size               = new-object System.Drawing.Size(100,15)
-$AdminAccount.Text               = "Admin Account"
-$AdminAccount.Checked            = $False;
-
-
-$AdminAcc = Get-LocalUser -Name "Administrator"
-if ($AdminAcc.Enabled -eq $True){
-    $AdminAccount.Checked = $True;
-}
-
 function restartExplorer
 {
     Stop-Process -Name "explorer" -Force -PassThru -ErrorAction SilentlyContinue | Out-Null
@@ -213,9 +207,19 @@ function Test-RegistryValue {
     }
 }
 
+# Update 7 : Added auto module importing!
 
+$ModuleFolder = "$PSScriptRoot\bin\modules";
+if(Test-Path $ModuleFolder){
+    $Modules = Get-ChildItem -LiteralPath $ModuleFolder -Filter "*.psm1"
+    foreach($ModuleFile in $Modules){
+        Import-Module $ModuleFile -Global -Force -ErrorAction SilentlyContinue | Out-Null
+        $Time = Get-Date -DisplayHint Time
+        Write-Host "$Time : Module `"$ModuleFile`" imported!" -ForegroundColor Green -BackgroundColor Black
+    }
+}
 
-$Form.controls.AddRange(@($MiscLabel,$EditScript,$TakeOwnership,$UninstallEdge,$AdminAccount,$RemoveBloat,$disablewindowsupdate,$enablewindowsupdate,$smalltaskbaricons,$Label16,$Label17,$Label18,$Label19,$RemoveTakeOwnership,$Panel1,$Panel2,$Label3,$Label15,$Panel4,$PictureBox1,$Label1,$Label4,$Panel3,$essentialtweaks,$backgroundapps,$cortana,$actioncenter,$darkmode,$visualfx,$onedrive,$lightmode))
+$Form.controls.AddRange(@($MiscLabel,$EditScript,$TakeOwnership,$UninstallEdge,$RemoveBloat,$disablewindowsupdate,$enablewindowsupdate,$smalltaskbaricons,$Label16,$Label17,$Label18,$Label19,$RemoveTakeOwnership,$Panel1,$Panel2,$Label3,$Label15,$Panel4,$PictureBox1,$Label1,$Label4,$Panel3,$essentialtweaks,$backgroundapps,$cortana,$actioncenter,$darkmode,$visualfx,$onedrive,$lightmode))
 
 $essentialtweaks.Add_Click({
 
@@ -454,6 +458,7 @@ $essentialtweaks.Add_Click({
         #"AppReadiness" # App Readiness
     )
 
+    #Disable Services listed above
     foreach ($Services in $Services) {
     Get-Service -Name $Services -ErrorAction SilentlyContinue | Set-Service -StartupType Disabled
         $running = Get-Service -Name $Services -ErrorAction SilentlyContinue | Where-Object {$_.Status -eq 'Running'}
@@ -462,6 +467,7 @@ $essentialtweaks.Add_Click({
         }
     }
 
+    #Disable Scheduled Tasks if text file is found
     if (Test-Path "$PSScriptRoot\bin\scheduledtasks_list.txt"){
         $Lines = Get-Content -Path "$PSScriptRoot\bin\scheduledtasks_list.txt"
             foreach($Task in $Lines){
@@ -484,20 +490,28 @@ $essentialtweaks.Add_Click({
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings" -Name "ShowHibernateOption" -Type Dword -Value 0
     #>
+
+    #Show File Extensions
     if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")){
         New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
     }
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0
     write-Host "Now, you will see file extensions"
-    if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")){
-        New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
-    }
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1
+
+    #Launch Explorer to This PC (This part of the code is already in the script)
+    #if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")){
+    #    New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
+    #}
+    #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1
+
+    #Disable Sticky Keys
     if (!(Test-Path "HKCU:\Control Panel\Accessibility\StickyKeys")){
         New-Item -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Force | Out-Null
     }
     Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Name "Flags" -Type String -Value "506"
     write-Host "Sticky Keys should be disabled now"
+
+    #Disable LockScreen
     If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\Personalization")) {
  	    New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\Personalization" | Out-Null
     }
@@ -511,11 +525,15 @@ $essentialtweaks.Add_Click({
     Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "PromptOnSecureDesktop" -Type DWord -Value 0
     write-Host "UAC has been disabled"
     #>
+
+    #Disable Advertising ID
     If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo")) {
 	New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" | Out-Null
     }
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type DWord -Value 0
     write-Host "Advertising ID has been disabled"
+
+    #Disable SmartScreen
     if (!(Test-Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer")){
         New-Item -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Force | Out-Null
     }
@@ -525,6 +543,7 @@ $essentialtweaks.Add_Click({
     }
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AppHost" -Name "EnableWebContentEvaluation" -Value 0
     write-Host "SmartScreen has been disabled"
+
     <#
     write-Host "Trying to disabled Wi-Fi Sense..."
     If (!(Test-Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting")) {
@@ -560,25 +579,34 @@ $essentialtweaks.Add_Click({
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers" -Name "DisableAutoplay" -Type DWord -Value 1
     write-Host "Disabled AutoPlay"
     #>
+
+    #Disable/Hide Search Icon on taskbar
     if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search")){
         New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Force | Out-Null
     }
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type DWord -Value 0
     write-Host "Disabled Search on taskbar"
+
+    #Disable/Hide Task View button on taskbar
     if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")){
         New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
     }
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 0
     write-Host "Disabled Task View button on taskbar"
 
+    #Disable File History
     if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\FileHistory")){
         New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\FileHistory" -Force | Out-Null
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\FileHistory" -Name "Disabled" -Type DWord -Value 1
+
+    #Disable Hand Writing Reports
     if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\HandwritingErrorReports")){
         New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\HandwritingErrorReports" -Force | Out-Null
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\HandwritingErrorReports" -Name "PreventHandwritingErrorReports" -Type DWord -Value 1
+
+    #Disable Location Tracking...
     if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors")){
         New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" -Force | Out-Null
     }
@@ -586,20 +614,23 @@ $essentialtweaks.Add_Click({
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" -Name "DisableLocationScripting" -Type DWord -Value 1
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" -Name "DisableSensors" -Type DWord -Value 1
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" -Name "DisableWindowsLocationProvider" -Type DWord -Value 1
+
+    #Some Email/Message application syncing?!?!...
     if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Messaging")){
         New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Messaging" -Force | Out-Null
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Messaging" -Name "AllowMessageSync" -Type DWord -Value 0
+
+    #Disable Auto Map Downloading/Updating
     if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Maps")){
         New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Maps" -Force | Out-Null
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Maps" -Name "AutoDownloadAndUpdateMapData" -Type DWord -Value 0
 
+    #Disable Application Notifications
     if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings")){
         New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings" -Force | Out-Null
     }
-
-    #Disable Notificationso
     Get-ChildItem -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings" | ForEach {
         Set-ItemProperty -Path $_.PsPath -Name "Enabled" -Type DWord -Value 0
         Set-ItemProperty -Path $_.PsPath -Name "LastNotificationAddedTime" -Type QWord -Value "0"
@@ -608,6 +639,8 @@ $essentialtweaks.Add_Click({
         New-Item -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\PushNotifications" -Force | Out-Null
     }
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "NoTileApplicationNotification" -Type DWord -Value 1
+
+    #Disable NumLock after startup
     Write-Host "Disable NumLock after startup..."
     Set-ItemProperty -Path "HKU:\.DEFAULT\Control Panel\Keyboard" -Name "InitialKeyboardIndicators" -Type DWord -Value 0
     Add-Type -AssemblyName System.Windows.Forms
@@ -615,18 +648,20 @@ $essentialtweaks.Add_Click({
         $wsh = New-Object -ComObject WScript.Shell
         $wsh.SendKeys('{NUMLOCK}')
     }
-    if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsStore")){
-        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsStore" -Force | Out-Null
-    }
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsStore" -Name "RemoveWindowsStore" -Type DWord -Value 1
+
+    #Disable Windows Feeds
     if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds")){
         New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Force | Out-Null
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Name "EnableFeeds" -Type DWord -Value 0
+
+    #Disable Game DVR
     if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR")){
         New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Force | Out-Null
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -Type DWord -Value 0
+
+    #Disable Silent Application/Bloatware installation
     if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")){
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SilentInstalledAppsEnabled" -Type DWord -Value 0
     }
@@ -1076,17 +1111,6 @@ $RemoveBloat.Add_Click({
     } else {
         # Update 3 : Added ELSE condition
         Write-Host "Can't find `"bloatware_list.txt`" inside bin folder! Make sure its there." -ForegroundColor Yellow -BackgroundColor Black
-    }
-})
-
-$AdminAccount.Add_CheckStateChanged({
-    $Chk = $AdminAccount
-    if ($AdminAccount.Checked){
-        write-Host "Administrator account is enabled!"
-        Get-LocalUser -Name "Administrator" | Enable-LocalUser
-    } else {
-        write-Host "Administrator account is disabled!"
-        Get-LocalUser -Name "Administrator" | Disable-LocalUser
     }
 })
 

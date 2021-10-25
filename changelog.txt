@@ -64,3 +64,14 @@ Commented out some scheduled tasks from the list :
 [ \Microsoft\Windows\UpdateOrchestrator\UUSFailoverTask              ]
 [ \Microsoft\Windows\UPnP\UPnPHostConfig                             ]
 ----------------------------------------------------------------------
+
+Update 7 : 
+Tweaked Scheduled Tasks & Bloatware list abit
+Added 2 more restore scripts
+Removed "Admin Account" chcekbox
+Made Windows Version bypass easier to use
+Added new modules
+Made auto module importing system
+Added abit more documentation into the debloater script
+Added "OOSHUTUP10.exe" into bin folder, gonna add configs and stuff later on
+Added "launch.bat" to launch script easier (You still need admin privileges)

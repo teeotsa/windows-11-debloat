@@ -1,0 +1,3 @@
+@echo off
+title Launch Debloater Script...
+powershell "%~dp0win11debloat.ps1"

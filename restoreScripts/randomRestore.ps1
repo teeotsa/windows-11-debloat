@@ -52,4 +52,12 @@ if (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows Defender")){
 	New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows Defender" -Force | Out-Null
 }
 Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -Type DWord -Value 0
+
+#restore Telemetry
+Remove-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" | Out-Null
+
+#enable SmartScreen
+Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "SmartScreenEnabled" -Type String -Value "Off"
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AppHost" -Name "EnableWebContentEvaluation" -Type DWord -Value 0
+
 exit

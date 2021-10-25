@@ -1,1 +1,3 @@
 These scripts might be added into GUI. I will just keep them here 
+
+' removeStartupPrograms.ps1 ' : Beaware! This might break your application auto-launching! NOTE : Won't remove Scheduled Tasks
