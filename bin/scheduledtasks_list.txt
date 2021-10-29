@@ -39,9 +39,6 @@
 \Microsoft\Windows\DeviceDirectoryClient\RegisterDeviceProtectionStateChanged
 \Microsoft\Windows\DeviceDirectoryClient\RegisterDeviceSettingChange
 \Microsoft\Windows\DeviceDirectoryClient\RegisterUserDevice
-\Microsoft\Windows\Diagnosis\RecommendedTroubleshootingScanner
-\Microsoft\Windows\Diagnosis\Scheduled
-\Microsoft\Windows\DiskCleanup\SilentCleanup
 \Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector
 \Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticResolver
 \Microsoft\Windows\DiskFootprint\Diagnostics
@@ -54,10 +51,6 @@
 \Microsoft\Windows\Flighting\FeatureConfig\UsageDataFlushing
 \Microsoft\Windows\Flighting\FeatureConfig\UsageDataReporting
 \Microsoft\Windows\Flighting\OneSettings\RefreshCache
-\Microsoft\Windows\Input\LocalUserSyncDataAvailable
-\Microsoft\Windows\Input\MouseSyncDataAvailable
-\Microsoft\Windows\Input\PenSyncDataAvailable
-\Microsoft\Windows\Input\TouchpadSyncDataAvailable
 \Microsoft\Windows\International\SynchronizeLanguageSettings
 \Microsoft\Windows\Location\Notifications
 \Microsoft\Windows\Location\WindowsActionDialog
@@ -103,15 +96,10 @@
 \Microsoft\Windows\UserProfileService\HiveUploadTask
 \Microsoft\Windows\WaaSMedic\PerformRemediation
 \Microsoft\Windows\WDI\ResolutionHost
-\Microsoft\Windows\WindowsDefender\WindowsDefenderCacheMaintenance
-\Microsoft\Windows\WindowsDefender\WindowsDefenderCleanup
-\Microsoft\Windows\WindowsDefender\WindowsDefenderScheduledScan
-\Microsoft\Windows\WindowsDefender\WindowsDefenderVerification
 \Microsoft\Windows\WindowsErrorReporting\QueueReporting
 \Microsoft\Windows\WindowsFilteringPlatform\BfeOnServiceStartTypeChange
 \Microsoft\Windows\WindowsMediaSharing\UpdateLibrary
 \Microsoft\Windows\WindowsColorSystem\CalibrationLoader
-\Microsoft\Windows\WindowsUpdate\ScheduledStart
 \Microsoft\Windows\Wininet\CacheTask
 \Microsoft\Windows\WOF\WIM-Hash-Management
 \Microsoft\Windows\WOF\WIM-Hash-Validation

@@ -1,29 +1,19 @@
 #  You can customize this list and add more stuff into it!
 #  Remember, any packages listed here will be removed!
 
-Microsoft.AsyncTextService
 Microsoft.BioEnrollment
-Microsoft.CredDialogHost
-Microsoft.ECApp
 Microsoft.LockApp
 Microsoft.MicrosoftEdgeDevToolsClient
 Microsoft.MicrosoftEdge
-Microsoft.Win32WebViewHost
-Microsoft.Windows.Apprep.ChxApp
 Microsoft.Windows.AssignedAccessLockApp
 Microsoft.Windows.CallingShellApp
 Microsoft.Windows.CapturePicker
 Microsoft.Windows.NarratorQuickStart
-Microsoft.Windows.OOBENetworkCaptivePortal
-Microsoft.Windows.OOBENetworkConnectionFlow
 Microsoft.Windows.ParentalControls
 Microsoft.Windows.PeopleExperienceHost
-Microsoft.Windows.PinningConfirmationDialog
 Microsoft.Windows.SecureAssessmentBrowser
 Microsoft.Windows.XGpuEjectDialog
 MicrosoftWindows.UndockedDevKit
-Windows.CBSPreview
-Windows.PrintDialog
 Microsoft.BingNews
 Microsoft.BingWeather
 Microsoft.GetHelp

@@ -7,9 +7,9 @@ Add-Type -AssemblyName System.Windows.Forms
 
 
 # Update 7 : Added this "*switch*" to disable version checking, just change $False to $True to bypass
-$BypassWindowsVersionChecking = $True
+$BypassWindowsVersionChecking = $False
 
-if($BypassWindowsVersionChecking -eq $False){
+if($BypassWindowsVersionChecking -eq $True){
     $WindowsVersion = [System.Environment]::OSVersion.Version
     if ($WindowsVersion.Build -lt "22000"){
         Write-Host "This script was made only for Windows 11. Script will be closed in 5 seconds!" -ForegroundColor Yellow -BackgroundColor Black
@@ -36,7 +36,7 @@ $Form.BackColor                  = [System.Drawing.ColorTranslator]::FromHtml("#
 $Form.AutoScaleDimensions        = '192, 192'
 $Form.AutoSize                   = $False
 $Form.ClientSize                 = '575, 500'
-$Form.FormBorderStyle            = 'Sizable'
+$Form.FormBorderStyle            = 'FixedSingle'
 
 $Label3                          = New-Object system.Windows.Forms.Label
 $Label3.text                     = "System Tweaks"
@@ -437,7 +437,7 @@ $essentialtweaks.Add_Click({
         #"SmsRouter" # Microsoft Windows SMS Router Service
         #"smphost" # Microsoft Storage Spaces SMP
         #"NgcCtnrSvc" # Microsoft Passport Container
-        "MsKeyboardFilter" # Microsoft Keyboard Filter
+        #"MsKeyboardFilter" # Microsoft Keyboard Filter ... thanks (.AtomRadar treasury ♛#8267) for report. 
         "cloudidsvc" # Microsoft Cloud Identity Service
         #"wlidsvc" # Microsoft Account Sign-in Assistant
         "*diagnosticshub*" # Microsoft (R) Diagnostics Hub Standard Collector Service
@@ -631,7 +631,7 @@ $essentialtweaks.Add_Click({
     if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings")){
         New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings" -Force | Out-Null
     }
-    Get-ChildItem -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings" | ForEach {
+    Get-ChildItem -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings" | foreach {
         Set-ItemProperty -Path $_.PsPath -Name "Enabled" -Type DWord -Value 0
         Set-ItemProperty -Path $_.PsPath -Name "LastNotificationAddedTime" -Type QWord -Value "0"
     }
@@ -641,13 +641,13 @@ $essentialtweaks.Add_Click({
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "NoTileApplicationNotification" -Type DWord -Value 1
 
     #Disable NumLock after startup
-    Write-Host "Disable NumLock after startup..."
-    Set-ItemProperty -Path "HKU:\.DEFAULT\Control Panel\Keyboard" -Name "InitialKeyboardIndicators" -Type DWord -Value 0
-    Add-Type -AssemblyName System.Windows.Forms
-    If (([System.Windows.Forms.Control]::IsKeyLocked('NumLock'))) {
-        $wsh = New-Object -ComObject WScript.Shell
-        $wsh.SendKeys('{NUMLOCK}')
-    }
+    #Write-Host "Disable NumLock after startup..."
+    #Set-ItemProperty -Path "HKU:\.DEFAULT\Control Panel\Keyboard" -Name "InitialKeyboardIndicators" -Type DWord -Value 0
+    #Add-Type -AssemblyName System.Windows.Forms
+    #If (([System.Windows.Forms.Control]::IsKeyLocked('NumLock'))) {
+    #    $wsh = New-Object -ComObject WScript.Shell
+    #    $wsh.SendKeys('{NUMLOCK}')
+    #}
 
     #Disable Windows Feeds
     if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds")){
@@ -662,9 +662,9 @@ $essentialtweaks.Add_Click({
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -Type DWord -Value 0
 
     #Disable Silent Application/Bloatware installation
-    if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")){
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SilentInstalledAppsEnabled" -Type DWord -Value 0
-    }
+    #if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")){
+    #    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SilentInstalledAppsEnabled" -Type DWord -Value 0
+    #}
 
     #tweaking abit more (less ram usage)
     if((Test-Path -LiteralPath "HKLM:\SYSTEM\CurrentControlSet\Control") -ne $true) {  New-Item "HKLM:\SYSTEM\CurrentControlSet\Control" -force -ea SilentlyContinue };
