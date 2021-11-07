@@ -1,6 +1,5 @@
 \MicrosoftEdgeUpdateTaskMachineCore
 \MicrosoftEdgeUpdateTaskMachineUA
-\OneDriveStandaloneUpdateTask-S-1-5-21-3035...
 \Microsoft\Windows\AppID\EDPPolicyManager
 \Microsoft\Windows\ApplicationExperience\MicrosoftCompatibilityAppraiser
 \Microsoft\Windows\ApplicationExperience\PcaPatchDbTask
@@ -12,7 +11,6 @@
 \Microsoft\Windows\ApplicationData\DsSvcCleanup
 \Microsoft\Windows\AppxDeploymentClient\Pre-stagedappcleanup
 \Microsoft\Windows\Autochk\Proxy
-\Microsoft\Windows\BitLocker\BitLockerEncryptAllDrives
 \Microsoft\Windows\BrokerInfrastructure\BgTaskRegistrationMaintenanceTask
 \Microsoft\Windows\capabilityaccessmanager\maintenancetasks
 \Microsoft\Windows\Chkdsk\ProactiveScan
