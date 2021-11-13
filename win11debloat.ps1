@@ -1,18 +1,18 @@
 # This script is just edited version of Teeotsa's Windows 10 Debloater script!
 
-# Latest Update : Update 9 | v1.5
+# Latest Update : Update 10 | v1.6
 
 Add-Type -AssemblyName System.Windows.Forms
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
 
 # Update 7 : Added this "*switch*" to disable version checking, just change $True to $False to bypass
-$BypassWindowsVersionChecking = $True
+$DoWindowsVersionChecking = $True
 
 # Dark Mode for PowerShell, change $False to $True to apply Dark Mode
 $PowerShellDarkTheme = $True;
 
-if($BypassWindowsVersionChecking -eq $True){
+if($DoWindowsVersionChecking -eq $True){
     $WindowsVersion = [System.Environment]::OSVersion.Version
     if ($WindowsVersion.Build -lt "22000"){
         Write-Host "This script was made only for Windows 11. Script will be closed in 5 seconds!" -ForegroundColor Yellow -BackgroundColor Black
@@ -414,8 +414,9 @@ $essentialtweaks.Add_Click({
         New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" | Out-Null
     }
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -Name "PeopleBand" -Type DWord -Value 0
-    Write-Host "Showing all tray icons..."
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "EnableAutoTray" -Type DWord -Value 0
+    # Update 10 : Commented out this part of the code, because some people might not like it
+    #Write-Host "Showing all tray icons..."
+    #Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "EnableAutoTray" -Type DWord -Value 0
     Write-Host "Enabling NumLock after startup..."
     If (!(Test-Path "HKU:")) {
         New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS | Out-Null
@@ -452,12 +453,15 @@ $essentialtweaks.Add_Click({
         New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Force | Out-Null
     }
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCAMeetNow" -Type DWord -Value 1
+    # Update 10 : Commented out this part of the code because it still needs some testing
+    <#
     Write-Host "Removing AutoLogger file and restricting directory..."
     $autoLoggerDir = "$env:PROGRAMDATA\Microsoft\Diagnosis\ETLLogs\AutoLogger"
     If (Test-Path "$autoLoggerDir\AutoLogger-Diagtrack-Listener.etl") {
         Remove-Item "$autoLoggerDir\AutoLogger-Diagtrack-Listener.etl"
     }
     icacls $autoLoggerDir /deny SYSTEM:`(OI`)`(CI`)F | Out-Null
+    #>
     Write-Host "Disabling some services and scheduled tasks"
 
     $Services = @(
@@ -468,14 +472,14 @@ $essentialtweaks.Add_Click({
         #"WinHttpAutoProxySvc" # NSudo Required
         #"WSearch" # Windows Search
         #"PushToInstall" # Needed for Microsoft Store
-        "icssvc" # Mobile Hotspot
+        #"icssvc" # Mobile Hotspot
         "MixedRealityOpenXRSvc" # Mixed Reality
         "WMPNetworkSvc" # Windows Media Player Sharing
         #"LicenseManager" # License Manager for Microsoft Store
         "wisvc" # Insider Program
         "WerSvc" # Error Reporting
         #"WalletService" # Wallet Service
-        "lmhosts" # TCP/IP NetBIOS Helper
+        #"lmhosts" # TCP/IP NetBIOS Helper
         "SysMain" # SuperFetch
         "svsvc" # Spot Verifier
         #"sppsvc" # Software Protection
@@ -483,7 +487,7 @@ $essentialtweaks.Add_Click({
         "ScDeviceEnum" # Smart Card Device Enumeration Service
         "SCardSvr" # Smart Card
         "LanmanServer" # Server
-        "SensorService" # Sensor Service
+        #"SensorService" # Sensor Service
         "RetailDemo" # Retail Demo Service
         "RemoteRegistry" # Remote Registry
         "UmRdpService" # Remote Desktop Services UserMode Port Redirector
@@ -491,22 +495,22 @@ $essentialtweaks.Add_Click({
         "SessionEnv" # Remote Desktop Configuration
         "RasMan" # Remote Access Connection Manager
         "RasAuto" # Remote Access Auto Connection Manager
-        "TroubleshootingSvc" # Recommended Troubleshooting Service
+        #"TroubleshootingSvc" # Recommended Troubleshooting Service
         #"RmSvc" # Radio Management Service (Might be needed for laptops)
-        "QWAVE" # Quality Windows Audio Video Experience
-        "wercplsupport" # Problem Reports Control Panel Support
+        #"QWAVE" # Quality Windows Audio Video Experience
+        #"wercplsupport" # Problem Reports Control Panel Support
         "Spooler" # Print Spooler
         "PrintNotify" # Printer Extensions and Notifications
         "PhoneSvc" # Phone Service
         #"SEMgrSvc" # Payments and NFC/SE Manager
         "WpcMonSvc" # Parental Controls
-        "CscService" # Offline Files
+        #"CscService" # Offline Files
         #"InstallService" # Microsoft Store Install Service
         #"SmsRouter" # Microsoft Windows SMS Router Service
         #"smphost" # Microsoft Storage Spaces SMP
         #"NgcCtnrSvc" # Microsoft Passport Container
         #"MsKeyboardFilter" # Microsoft Keyboard Filter ... thanks (.AtomRadar treasury ♛#8267) for report. 
-        "cloudidsvc" # Microsoft Cloud Identity Service
+        #"cloudidsvc" # Microsoft Cloud Identity Service
         #"wlidsvc" # Microsoft Account Sign-in Assistant
         "*diagnosticshub*" # Microsoft (R) Diagnostics Hub Standard Collector Service
         "iphlpsvc" # IP Helper
@@ -521,8 +525,8 @@ $essentialtweaks.Add_Click({
         "DPS" # Diagnostic Policy Service
         "diagsvc" # Diagnostic Execution Service
         #"DoSvc" # Delivery Optimization
-        "DusmSvc" # Data Usage
-        "VaultSvc" # Credential Manager
+        #"DusmSvc" # Data Usage
+        #"VaultSvc" # Credential Manager
         #"AppReadiness" # App Readiness
     )
 
@@ -676,11 +680,12 @@ $essentialtweaks.Add_Click({
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" -Name "DisableSensors" -Type DWord -Value 1
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" -Name "DisableWindowsLocationProvider" -Type DWord -Value 1
 
+    # Update 10 : Commented this part of the code out, because it needs more testing...
     #Some Email/Message application syncing?!?!...
-    if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Messaging")){
-        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Messaging" -Force | Out-Null
-    }
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Messaging" -Name "AllowMessageSync" -Type DWord -Value 0
+    #if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Messaging")){
+    #    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Messaging" -Force | Out-Null
+    #}
+    #Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Messaging" -Name "AllowMessageSync" -Type DWord -Value 0
 
     #Disable Auto Map Downloading/Updating
     if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Maps")){
@@ -695,7 +700,6 @@ $essentialtweaks.Add_Click({
     if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings")){
         New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings" -Force | Out-Null
     }
-
     Get-ChildItem -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings" -ErrorAction SilentlyContinue | ForEach-Object {
         Set-ItemProperty -Path $_.PsPath -Name "Enabled" -Type DWord -Value 0
         Set-ItemProperty -Path $_.PsPath -Name "LastNotificationAddedTime" -Type QWord -Value "0"
@@ -730,6 +734,33 @@ $essentialtweaks.Add_Click({
     #if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")){
     #    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SilentInstalledAppsEnabled" -Type DWord -Value 0
     #}
+
+    # Update 10 : Added Auto Time Sync fix
+    Write-Host "Service `"W32Time`" was set to Automatic" -ForegroundColor Green
+    Set-Service -Name W32Time -StartupType Automatic
+    Write-Host "Starting Windows Time service"
+    Start-Service -Name W32Time
+
+    Write-Host "Creating Scheduled Task to fix Automatic Time Syncing"
+    $Trigger = New-ScheduledTaskTrigger -AtLogOn
+    $User = "Administrator"
+    $Action = New-ScheduledTaskAction -Execute "net start w32time"
+    $Description = "This task was made by Teeotsa's script! You can safely delete this task if you wish not to have auto syncing time!"
+    Register-ScheduledTask -TaskName "Auto Time Sync" -Trigger $Trigger -User $User -Action $Action -RunLevel Highest -Description $Description
+
+    # Update 10 : Added TabletInputService fix
+    Write-Host "Service `"TabletInputService`" was set to Automatic" -ForegroundColor Green
+    Set-Service -Name TabletInputService -StartupType Automatic
+    Write-Host "Starting TabletInputService" -ForegroundColor Green
+    Start-Service -Name TabletInputService
+    New-Item -Path "$env:SystemRoot\StartService.bat" -ItemType File -Value "
+sc start TabletInputService
+    " -Force -ErrorAction SilentlyContinue | Out-Null
+    $StartupFolder = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run";
+    If(!(Test-Path $StartupFolder)){
+        New-Item -Path $StartupFolder -Force | Out-Null
+    }
+    Set-ItemProperty -Path $StartupFolder -Name StartTabletInputService -Value "$env:SystemRoot\StartService.bat"
 
     #tweaking abit more (less ram usage)
     if((Test-Path -LiteralPath "HKLM:\SYSTEM\CurrentControlSet\Control") -ne $true) {  New-Item "HKLM:\SYSTEM\CurrentControlSet\Control" -force -ea SilentlyContinue };

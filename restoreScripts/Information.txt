@@ -31,4 +31,10 @@ This will restore all visual effects applied by debloater script
 "restoreTaskbar.ps1"
 This will restore your taskbar to default size (big)
 
+"Remove-TabletInputServiceFix.ps1"
+Essential Tweaks created script + registry key to "fix" Tablet Input Service. The script
+will auto start the service if needed! Use "Remove-TabletInputServiceFix.ps1" to 
+remove it
 
+"Remove-AutoTimeSync.ps1"
+Used to remove Scheduled Task script created during the debloating process.
