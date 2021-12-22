@@ -1,5 +1,7 @@
 # Windows 11 Debloater 🚀
 
+Discord (if you have any issues) : https://discord.gg/JtMvqaNR5V
+
 You should know this before running this script : 
 
 ⚠️ Disclaimer: You're doing this at your own risk, I am not responsible for any data loss or damage that may occur. ⚠️
