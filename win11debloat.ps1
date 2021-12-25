@@ -1,23 +1,54 @@
 # This script is just edited version of Teeotsa's Windows 10 Debloater script!
+# Latest Update : Update 11 | v1.7
+# Yes, i know you can do "<##>" but i don't like to do that way... Just let me
+# do whatever i want :)
 
-# Latest Update : Update 10 | v1.6
+# Update 7 : Added this "*switch*" to disable version checking, just change $True to $False to bypass
+# Update 12 : Modified Version checking! Should ... Work better now.
+# Update 4 : Temporarily disabled O&OSHUTUP Part (Will be enabled later on)
+# Update 12 : Fixed O&OSHUTUP10 Part
+# Update 12 : Commented out TabletInputService fix... Because it isn't the best, okay?
+# Update 12 : Modified "Restart-Explorer" function! Or should i say cmdlet ? :'D
 
 Add-Type -AssemblyName System.Windows.Forms
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
 
-# Update 7 : Added this "*switch*" to disable version checking, just change $True to $False to bypass
-$DoWindowsVersionChecking = $True
-
+$DoWindowsVersionChecking = $False
 # Dark Mode for PowerShell, change $False to $True to apply Dark Mode
 $PowerShellDarkTheme = $True;
 
+
 if($DoWindowsVersionChecking -eq $True){
-    $WindowsVersion = [System.Environment]::OSVersion.Version
-    if ($WindowsVersion.Build -lt "22000"){
-        Write-Host "This script was made only for Windows 11. Script will be closed in 5 seconds!" -ForegroundColor Yellow -BackgroundColor Black
+
+    [Int]$MajorVersion = [System.Environment]::OSVersion.Version.Major
+    [Int]$MinorVersion = [System.Environment]::OSVersion.Version.Major
+    [Int]$BuildVersion = [System.Environment]::OSVersion.Version.Major
+
+    #10 specifies NT Version of Windows 10
+    if($MajorVersion -ne 10){
+    
+        Write-Host "This script is only designed to run on " -NoNewline
+        Write-Host "Windows 11`n`n" -ForegroundColor Cyan
+        Write-Host "Script will be closed in " -NoNewline
+        Write-Host "5 seconds" -ForegroundColor Red
         Start-Sleep -Seconds 5
-        exit;
+        Exit
+        Return
+     
+    }
+
+    #Check if user is running Windows 11 by Build version
+    if($BuildVersion -lt 22000){
+        
+        Write-Host "This script is only designed to run on " -NoNewline
+        Write-Host "Windows 11`n`n" -ForegroundColor Cyan
+        Write-Host "Script will be closed in " -NoNewline
+        Write-Host "5 seconds" -ForegroundColor Red
+        Start-Sleep -Seconds 5
+        Exit
+        Return
+
     }
 }
 
@@ -40,9 +71,15 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 $OtherTweaksLeft = 275
 $SystemTweaksLeft = 40
 
-# This is needed for Dark Mode
+# Custom Title for PowerShell's Window
 $Console = $Host.UI.RawUI
 $Console.WindowTitle = "Windows 11 Debloater GUI"
+
+#Message from the author!
+Write-Host "Thank you for your amazing support on my Github Repository! (31 Stars!!!)" 
+Write-Host "Merry Christmas" -ForegroundColor Red -NoNewline
+Write-Host " from " -NoNewline 
+Write-Host "Teeotsa" -ForegroundColor Cyan
 
 $Form                            = New-Object System.Windows.Forms.Form
 $Form.Text                       = "Windows 11 Debloater GUI"
@@ -242,12 +279,22 @@ $Label15.height                  = 10
 $Label15.location                = New-Object System.Drawing.Point(315,11)
 $Label15.Font                    = New-Object System.Drawing.Font('Microsoft Sans Serif',24)
 
-function Restart-Explorer
-{
-    Stop-Process -Name "explorer" -Force -PassThru -ErrorAction SilentlyContinue | Out-Null
-    Start-Sleep -Seconds 2
-    if (!(Get-Process -Name "explorer")){
-        Start-Process -FilePath "explorer"  | Out-Null
+function Restart-Process{
+    param(
+        [Parameter(Mandatory = $True)]
+        [String] $Process,
+
+        [Switch] $Restart
+    )
+
+    if(Get-Process -Name $Process -ErrorAction SilentlyContinue){
+        Stop-Process -Name $Process -Force -ErrorAction SilentlyContinue | Out-Null
+    }
+    if($Restart){
+        Start-Sleep -Seconds 5
+        if(!(Get-Process -Name $Process)){
+            Start-Process -FilePath $Process
+        }
     }
 }
 
@@ -270,33 +317,20 @@ function Test-RegistryValue {
     }
 }
 
-# Update 7 : Added auto module importing!
-
-$ModuleFolder = "$PSScriptRoot\bin\modules";
-if(Test-Path $ModuleFolder){
-    $Modules = Get-ChildItem -LiteralPath $ModuleFolder -Filter "*.psm1"
-    foreach($ModuleFile in $Modules){
-        Import-Module $ModuleFile -Global -Force -ErrorAction SilentlyContinue | Out-Null
-        $Time = Get-Date -DisplayHint Time
-        Write-Host "$Time : Module `"$ModuleFile`" imported!" -ForegroundColor Green -BackgroundColor Black
-    }
-}
-
 $Form.controls.AddRange(@($RestoreEverything,$EditScript,$OtherTweaks,$EditScript,$UninstallEdge,$RemoveBloat,$onedrive,$TakeOwnership,$RemoveTakeOwnership,$DefaultTaskbarIco,$smalltaskbaricons,$enablewindowsupdate,$disablewindowsupdate,$RestoreVisual,$visualfx,$lightmode,$darkmode,$EnableCortana,$cortana,$essentialtweaks,$RestoreTweaks,$Label3,$actioncenter,$EnableActionCenter,$backgroundapps,$EnableBGApps))
 
 $essentialtweaks.Add_Click({
 
-    write-Host "Making Restore Point... Please wait"
-    Enable-ComputerRestore -Drive "$env:SystemDrive"
+    Write-Host "Making Restore Point... Please wait" -ForegroundColor Cyan
+    Enable-ComputerRestore -Drive $env:SystemDrive
     Checkpoint-Computer -Description "RestorePoint1" -RestorePointType "MODIFY_SETTINGS"
 
-    # Update 4 : Temporarily disabled O&OSHUTUP Part (Will be enabled later on)
-
-    #Write-Host "Running O&O Shutup with Not Recommended Settings"
-    #Import-Module BitsTransfer
-    #Start-BitsTransfer -Source "https://raw.githubusercontent.com/teeotsa/windows-10-debloat/main/ooshutup10.cfg" -Destination ooshutup10.cfg
-    #Start-BitsTransfer -Source "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe" -Destination OOSU10.exe
-    #./OOSU10.exe ooshutup10.cfg /quiet
+    Set-Location $PSScriptRoot
+    Write-Host "Running O&OSHUTUP10"
+    Import-Module BitsTransfer
+    Start-BitsTransfer -Source "https://raw.githubusercontent.com/ChrisTitusTech/win10script/master/ooshutup10.cfg" -Destination ooshutup10.cfg
+    Start-BitsTransfer -Source "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe" -Destination OOSU10.exe
+    ./OOSU10.exe ooshutup10.cfg /quiet
 
     Write-Host "Disabling Telemetry..."
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0
@@ -357,6 +391,8 @@ $essentialtweaks.Add_Click({
     Write-Host "Disabling Error reporting..."
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting" -Name "Disabled" -Type DWord -Value 1
     Disable-ScheduledTask -TaskName "Microsoft\Windows\Windows Error Reporting\QueueReporting" | Out-Null
+
+    #This might f*ck up Windows Update!
     #Write-Host "Restricting Windows Update P2P only to local network..."
     #if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization")){
     #    New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization" | Out-Null
@@ -427,27 +463,21 @@ $essentialtweaks.Add_Click({
         $wsh = New-Object -ComObject WScript.Shell
         $wsh.SendKeys('{NUMLOCK}')
     }
-
     Write-Host "Changing default Explorer view to This PC..."
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1
     Write-Host "Hiding 3D Objects icon from This PC..."
     Remove-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}" -Recurse -ErrorAction SilentlyContinue
-	
     #Network Tweaks
 	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "IRPStackSize" -Type DWord -Value 20
-
 	#SVCHost Tweak
 	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control" -Name "SvcHostSplitThresholdInKB" -Type DWord -Value 4194304
-
     Write-Host "Disable News and Interests"
     if (!(Test-Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds")){
     New-Item -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Force | Out-Null
     }
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Name "EnableFeeds" -Type DWord -Value 0
-
     #Remove news and interest from taskbar
     Set-ItemProperty -Path  "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds" -Name "ShellFeedsTaskbarViewMode" -Type DWord -Value 2
-
     #Remove meet now button from taskbar
     If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer")) {
         New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Force | Out-Null
@@ -480,7 +510,7 @@ $essentialtweaks.Add_Click({
         "WerSvc" # Error Reporting
         #"WalletService" # Wallet Service
         #"lmhosts" # TCP/IP NetBIOS Helper
-        "SysMain" # SuperFetch
+        "SysMain" # SuperFetch - Safe to disable if you have a SSD
         "svsvc" # Spot Verifier
         #"sppsvc" # Software Protection
         "SCPolicySvc" # Smart Card Removal Policy
@@ -513,7 +543,7 @@ $essentialtweaks.Add_Click({
         #"cloudidsvc" # Microsoft Cloud Identity Service
         #"wlidsvc" # Microsoft Account Sign-in Assistant
         "*diagnosticshub*" # Microsoft (R) Diagnostics Hub Standard Collector Service
-        "iphlpsvc" # IP Helper
+        #"iphlpsvc" # IP Helper - Might break some VPN Clients
         "lfsvc" # Geolocation Service
         "fhsvc" # File History Service
         "Fax" # Fax
@@ -531,25 +561,28 @@ $essentialtweaks.Add_Click({
     )
 
     #Disable Services listed above
-    foreach ($Services in $Services) {
-    Get-Service -Name $Services -ErrorAction SilentlyContinue | Set-Service -StartupType Disabled
-        $running = Get-Service -Name $Services -ErrorAction SilentlyContinue | Where-Object {$_.Status -eq 'Running'}
-        if ($running) {
-            Stop-Service -Name $Services -Force -PassThru | Out-Null
+    foreach ($Service in $Services) {
+    Get-Service -Name $Service -ErrorAction SilentlyContinue | Set-Service -StartupType Disabled
+        if($Service.Status -eq "Running"){
+            Stop-Service -Name $Service -Force -ErrorAction SilentlyContinue | Out-Null
+            Write-Host "Trying to stop " -NoNewline
+            Write-Host "`""$Service.DisplayName"`"" -ForegroundColor Cyan
         }
     }
 
     #Disable Scheduled Tasks if text file is found
-    if (Test-Path "$PSScriptRoot\bin\scheduledtasks_list.txt"){
-        $Lines = Get-Content -Path "$PSScriptRoot\bin\scheduledtasks_list.txt"
-            foreach($Task in $Lines){
-                Disable-ScheduledTask -TaskName $Task -ErrorAction SilentlyContinue | Out-Null
-                Write-Host "Trying to disable `"$Task`"" -ForegroundColor Yellow -BackgroundColor Black
-            }
+    if((Test-Path "$PSScriptRoot\bin\scheduledtasks_list.txt") -and ((Get-Content -Path "$PSScriptRoot\bin\scheduledtasks_list.txt").Length -ge 1)){
+        $Content = Get-Content -Path "$PSScriptRoot\bin\scheduledtasks_list.txt"
+        foreach($Line in $Content){
+            Disable-ScheduledTask -TaskName $Line -ErrorAction SilentlyContinue | Out-Null
+            Write-Host "Trying to disable " -NoNewline
+            Write-Host "`"" $Line "`"" -ForegroundColor Green
+        }
     } else {
-        # Update 3 : Added else condition
-        Write-Host "Can't find `"scheduledtasks_list.txt`" from bin folder!" -ForegroundColor Yellow -BackgroundColor Black
+        Write-Host "Can't find " -NoNewline
+        Write-Host "`"$PSScriptRoot\bin\scheduledtasks_list.txt`"" -ForegroundColor Red
     }
+
 
     <#
     write-Host "Trying to disable Hibernation..."
@@ -564,11 +597,11 @@ $essentialtweaks.Add_Click({
     #>
 
     #Show File Extensions
-    if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")){
-        New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
-    }
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0
-    write-Host "Now, you will see file extensions"
+    #if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")){
+    #    New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
+    #}
+    #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0
+    #write-Host "Now, you will see file extensions"
 
     #Launch Explorer to This PC (This part of the code is already in the script)
     #if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")){
@@ -653,11 +686,11 @@ $essentialtweaks.Add_Click({
     #>
 
     #Disable/Hide Search Icon on taskbar
-    if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search")){
-        New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Force | Out-Null
-    }
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type DWord -Value 0
-    write-Host "Disabled Search on taskbar"
+    #if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search")){
+    #    New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Force | Out-Null
+    #}
+    #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type DWord -Value 0
+    #write-Host "Disabled Search on taskbar"
 
     #Disable File History
     if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\FileHistory")){
@@ -735,6 +768,7 @@ $essentialtweaks.Add_Click({
     #    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SilentInstalledAppsEnabled" -Type DWord -Value 0
     #}
 
+    <#
     # Update 10 : Added Auto Time Sync fix
     Write-Host "Service `"W32Time`" was set to Automatic" -ForegroundColor Green
     Set-Service -Name W32Time -StartupType Automatic
@@ -761,6 +795,7 @@ sc start TabletInputService
         New-Item -Path $StartupFolder -Force | Out-Null
     }
     Set-ItemProperty -Path $StartupFolder -Name StartTabletInputService -Value "$env:SystemRoot\StartService.bat"
+    #>
 
     #tweaking abit more (less ram usage)
     if((Test-Path -LiteralPath "HKLM:\SYSTEM\CurrentControlSet\Control") -ne $true) {  New-Item "HKLM:\SYSTEM\CurrentControlSet\Control" -force -ea SilentlyContinue };
@@ -881,7 +916,7 @@ sc start TabletInputService
     New-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\54533251-82be-4824-96c1-47b60b740d00\3b04d4fd-1cc7-4f23-ab1c-d1337819c4bb\DefaultPowerSchemeValues\8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c' -Name 'ACSettingIndex' -Value 0 -PropertyType DWord -Force -ea SilentlyContinue;
     #New-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender' -Name 'DisableAntiSpyware' -Value 1 -PropertyType DWord -Force -ea SilentlyContinue;
 
-    Restart-Explorer
+    Restart-Process -Process "explorer" -Restart
     Write-Host "Tweaks are done!"
 })
 
@@ -925,7 +960,7 @@ $cortana.Add_Click({
 
 $backgroundapps.Add_Click({
     Write-Host "Disabling Background application access..."
-    Get-ChildItem -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" | ForEach {
+    Get-ChildItem -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" |  ForEach{
         Set-ItemProperty -Path $_.PsPath -Name "Disabled" -Type DWord -Value 1
         Set-ItemProperty -Path $_.PsPath -Name "DisabledByUser" -Type DWord -Value 1
     }
@@ -962,7 +997,7 @@ $visualfx.Add_Click({
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAnimations" -Type DWord -Value 0
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Type DWord -Value 3
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\DWM" -Name "EnableAeroPeek" -Type DWord -Value 0
-    Restart-Explorer
+    Restart-Process -Process "explorer" -Restart
     Write-Host "Adjusted visual effects for performance"
 })
 
@@ -981,7 +1016,7 @@ $onedrive.Add_Click({
     }
     Start-Process $onedrive "/uninstall" -NoNewWindow -Wait
     Start-Sleep -s 2
-    restartExplorer
+    Restart-Process -Process "explorer" -Restart
     Start-Sleep -s 2
     Remove-Item -Path "$env:USERPROFILE\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
     Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
@@ -1031,7 +1066,7 @@ $darkmode.Add_Click({
     #reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" /t "REG_DWORD" /d "0" /f
     #reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "SystemUsesLightTheme" /t "REG_DWORD" /d "0" /f
 
-    restartExplorer
+    Restart-Process -Process "explorer" -Restart
     Write-Host "Enabled Dark Mode"
 })
 
@@ -1057,7 +1092,7 @@ $lightmode.Add_Click({
     #reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" /t "REG_DWORD" /d "1" /f
     #reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "SystemUsesLightTheme" /t "REG_DWORD" /d "1" /f
 
-    restartExplorer
+    Restart-Process -Process "explorer" -Restart
     Write-Host "Switched Back to Light Mode"
 })
 
@@ -1106,7 +1141,7 @@ $smalltaskbaricons.Add_Click({
 
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name TaskbarSi -Value 0
 
-    Restart-Explorer;
+    Restart-Process -Process "explorer" -Restart
 
     Write-Host "You should have small taskbar now! It might be buggy but you can always revert" -ForegroundColor Yellow;
 
@@ -1267,7 +1302,7 @@ $TakeOwnership.Add_Click({
 
 })
 
-# Update 1 : Added button so you can edit this script
+
 
 $EditScript.Add_Click({
     $DebloaterFile = $PSCommandPath;
@@ -1297,7 +1332,7 @@ $EnableActionCenter.Add_Click({
     # Alternative :
     # Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "ToastEnabled" -Type DWord -Value 1
 
-    Stop-Process -Name "explorer" -Force -PassThru -ErrorAction SilentlyContinue
+    Restart-Process -Process "explorer" -Restart
     Write-Host "Action Center should be enabled now!"
 })
 
@@ -1313,13 +1348,13 @@ $RestoreVisual.Add_Click({
 	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAnimations" -Type DWord -Value 1
 	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Type DWord -Value 3
 	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\DWM" -Name "EnableAeroPeek" -Type DWord -Value 1
-    Restart-Explorer
+    Restart-Process -Process "explorer" -Restart
     Write-Host "Visual Effects has been restored to their defaults!"
 })
 
 $DefaultTaskbarIco.Add_Click({
     Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarSi" -Force | Out-Null
-    Restart-Explorer
+    Restart-Process -Process "explorer" -Restart
     Write-Host "You should have Default size Tasbkar now"
 })
 
