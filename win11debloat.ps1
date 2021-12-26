@@ -14,7 +14,7 @@ Add-Type -AssemblyName System.Windows.Forms
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
 
-$DoWindowsVersionChecking = $False
+$DoWindowsVersionChecking = $True
 # Dark Mode for PowerShell, change $False to $True to apply Dark Mode
 $PowerShellDarkTheme = $True;
 
@@ -279,6 +279,20 @@ $Label15.height                  = 10
 $Label15.location                = New-Object System.Drawing.Point(315,11)
 $Label15.Font                    = New-Object System.Drawing.Font('Microsoft Sans Serif',24)
 
+$DisableWindowsDefender          = New-Object system.Windows.Forms.Button
+$DisableWindowsDefender.text     = "Disable Windows Defender"
+$DisableWindowsDefender.width    = 250
+$DisableWindowsDefender.height   = 30
+$DisableWindowsDefender.location = New-Object System.Drawing.Point($OtherTweaksLeft,486)
+$DisableWindowsDefender.Font     = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
+
+$EnableWindowsDefender           = New-Object system.Windows.Forms.Button
+$EnableWindowsDefender.text      = "Enable Windows Defender"
+$EnableWindowsDefender.width     = 250
+$EnableWindowsDefender.height    = 30
+$EnableWindowsDefender.location  = New-Object System.Drawing.Point($OtherTweaksLeft,526)
+$EnableWindowsDefender.Font      = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
+
 function Restart-Process{
     param(
         [Parameter(Mandatory = $True)]
@@ -317,7 +331,7 @@ function Test-RegistryValue {
     }
 }
 
-$Form.controls.AddRange(@($RestoreEverything,$EditScript,$OtherTweaks,$EditScript,$UninstallEdge,$RemoveBloat,$onedrive,$TakeOwnership,$RemoveTakeOwnership,$DefaultTaskbarIco,$smalltaskbaricons,$enablewindowsupdate,$disablewindowsupdate,$RestoreVisual,$visualfx,$lightmode,$darkmode,$EnableCortana,$cortana,$essentialtweaks,$RestoreTweaks,$Label3,$actioncenter,$EnableActionCenter,$backgroundapps,$EnableBGApps))
+$Form.controls.AddRange(@($EnableWindowsDefender,$DisableWindowsDefender,$RestoreEverything,$EditScript,$OtherTweaks,$EditScript,$UninstallEdge,$RemoveBloat,$onedrive,$TakeOwnership,$RemoveTakeOwnership,$DefaultTaskbarIco,$smalltaskbaricons,$enablewindowsupdate,$disablewindowsupdate,$RestoreVisual,$visualfx,$lightmode,$darkmode,$EnableCortana,$cortana,$essentialtweaks,$RestoreTweaks,$Label3,$actioncenter,$EnableActionCenter,$backgroundapps,$EnableBGApps))
 
 $essentialtweaks.Add_Click({
 
@@ -1148,23 +1162,35 @@ $smalltaskbaricons.Add_Click({
 })
 
 $RemoveTakeOwnership.Add_Click({
+    Write-Host "Trying to remove " -NoNewline
+    Write-Host "Take Ownership" -ForegroundColor Cyan
+    $RegFile = "
+    Windows Registry Editor Version 5.00
 
-    # Update 1 : Remove 'Windows Cleaner' code from here!
+    [-HKEY_CLASSES_ROOT\*\shell\runas]
 
-    if(Test-Path -LiteralPath "HKLM:\SOFTWARE\Classes\*\shell\TakeOwnership"){
-        Clear-Host
-        write-Host "This might take some time to remove! Please wait..."
-        if(Test-Path -LiteralPath "HKLM:\SOFTWARE\Classes\*\shell\TakeOwnership"){
-        Remove-Item -Path "Microsoft.PowerShell.Core\Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shell\TakeOwnership" -Force -Recurse -ErrorAction SilentlyContinue | Out-Null
-        }
-        if(Test-Path -LiteralPath "HKLM:\SOFTWARE\Classes\Directory\shell\TakeOwnership"){
-        Remove-Item -Path "Microsoft.PowerShell.Core\Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Directory\shell\TakeOwnership" -Force -Recurse -ErrorAction SilentlyContinue | Out-Null
-        }
-        write-Host "'Take Ownership' context menu is gone!"
-    } else {
-        Clear-Host
-        Write-Host "Can't find `"Take Ownership`" registry keys. It might be already removed?" -ForegroundColor Yellow -BackgroundColor Black
+    [-HKEY_CLASSES_ROOT\Directory\shell\runas]
+
+    [-HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shell\TakeOwnership]
+
+    [-HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Directory\shell\TakeOwnership]
+    "
+
+    if(Test-Path $PSScriptRoot\bin\removeTakeOwnership.reg){
+        Remove-Item -Path $PSScriptRoot\bin\removeTakeOwnership.reg -Force -ErrorAction SilentlyContinue | Out-Null
+        Write-Host "`"removeTakeOwnership.reg`"" -NoNewline -ForegroundColor Cyan
+        Write-Host " was deleted!"
+        Write-Host "Trying to create new one..."
     }
+
+    New-Item -Path $PSScriptRoot\bin\removeTakeOwnership.reg -Value $RegFile | Out-Null
+    Start-Sleep -Milliseconds 200
+    Invoke-Command -ScriptBlock {
+        #Merging the registry key to remove "Take Ownership"
+        regedit /s "$PSScriptRoot\bin\removeTakeOwnership.reg"
+    }
+    Write-Host "Take Ownership" -NoNewline -ForegroundColor Cyan
+    Write-Host " should be removed now!"
 })
 
 $RemoveBloat.Add_Click({
@@ -1356,6 +1382,96 @@ $DefaultTaskbarIco.Add_Click({
     Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarSi" -Force | Out-Null
     Restart-Process -Process "explorer" -Restart
     Write-Host "You should have Default size Tasbkar now"
+})
+
+$DisableWindowsDefender.Add_Click({
+    Write-Host "Trying to disable " -NoNewline
+    Write-Host "Windows Defender" -ForegroundColor Cyan
+
+    $ErrorMessageTable = @{
+        NsudoNotFound = "Couldn't find NSudo. Please check if you have `"NSudo`" folder in script's root!"
+    }
+
+    if((Test-Path "$PSScriptRoot\NSudo\NSudoLG.exe") -and (Test-Path "$PSScriptRoot\NSudo\NSudo.json")){
+
+        $Commands = @(
+        "Set-Service -StartupType Disabled 'WinDefend' -ErrorAction SilentlyContinue"
+        "Stop-Service -Force -Name 'WinDefend' -ErrorAction SilentlyContinue"
+        "Set-Service -StartupType Disabled 'WdNisSvc' -ErrorAction SilentlyContinue"
+        "Stop-Service -Force -Name 'WdNisSvc' -ErrorAction SilentlyContinue"
+        "Set-Service -StartupType Disabled 'mpssvc' -ErrorAction SilentlyContinue"
+        "Stop-Service -Force -Name 'mpssvc' -ErrorAction SilentlyContinue"
+        "Set-Service -StartupType Disabled 'Sense' -ErrorAction SilentlyContinue"
+        "Stop-Service -Force -Name 'Sense' -ErrorAction SilentlyContinue"
+        "Set-Service -StartupType Disabled 'wscsvc' -ErrorAction SilentlyContinue"
+        "Stop-Service -Force -Name 'wscsvc' -ErrorAction SilentlyContinue"
+        "Disable-ScheduledTask -TaskName '\Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance' | Out-Null"
+        "Disable-ScheduledTask -TaskName '\Microsoft\Windows\Windows Defender\Windows Defender Cleanup' | Out-Null"
+        "Disable-ScheduledTask -TaskName '\Microsoft\Windows\Windows Defender\Windows Defender Scheduled Scan' | Out-Null"
+        "Disable-ScheduledTask -TaskName '\Microsoft\Windows\Windows Defender\Windows Defender Verification' | Out-Null"
+        )
+
+        foreach($CMD in $Commands){
+            Invoke-Command -ScriptBlock {
+                Start-Process -FilePath "$PSScriptRoot\NSudo\NSudoLG.exe" -ArgumentList "--U=T --P=E --ShowWindowMode=Hide powershell $CMD"
+            }
+        }  
+
+        Write-Host "Windows Defender" -NoNewline -ForegroundColor Cyan
+        Write-Host " should be " -NoNewline
+        Write-Host "disabled" -NoNewline -ForegroundColor Red
+        Write-Host " now!"
+
+    } else {
+    
+        Write-Host $ErrorMessageTable.NsudoNotFound -ForegroundColor Red
+
+    }
+})
+
+$EnableWindowsDefender.Add_Click({
+    Write-Host "Trying to enable " -NoNewline
+    Write-Host "Windows Defender" -ForegroundColor Cyan
+
+    $ErrorMessageTable = @{
+        NsudoNotFound = "Couldn't find NSudo. Please check if you have `"NSudo`" folder in script's root!"
+    }
+
+    if((Test-Path "$PSScriptRoot\NSudo\NSudoLG.exe") -and (Test-Path "$PSScriptRoot\NSudo\NSudo.json")){
+
+        $Commands = @(
+        "Set-Service -StartupType Automatic 'WinDefend' -ErrorAction SilentlyContinue"
+        "Start-Service -Force -Name 'WinDefend' -ErrorAction SilentlyContinue"
+        "Set-Service -StartupType Automatic 'WdNisSvc' -ErrorAction SilentlyContinue"
+        "Start-Service -Force -Name 'WdNisSvc' -ErrorAction SilentlyContinue"
+        "Set-Service -StartupType Automatic 'mpssvc' -ErrorAction SilentlyContinue"
+        "Start-Service -Force -Name 'mpssvc' -ErrorAction SilentlyContinue"
+        "Set-Service -StartupType Automatic 'Sense' -ErrorAction SilentlyContinue"
+        "Start-Service -Force -Name 'Sense' -ErrorAction SilentlyContinue"
+        "Set-Service -StartupType Automatic 'wscsvc' -ErrorAction SilentlyContinue"
+        "Start-Service -Force -Name 'wscsvc' -ErrorAction SilentlyContinue"
+        "Enable-ScheduledTask -TaskName '\Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance' | Out-Null"
+        "Enable-ScheduledTask -TaskName '\Microsoft\Windows\Windows Defender\Windows Defender Cleanup' | Out-Null"
+        "Enable-ScheduledTask -TaskName '\Microsoft\Windows\Windows Defender\Windows Defender Scheduled Scan' | Out-Null"
+        "Enable-ScheduledTask -TaskName '\Microsoft\Windows\Windows Defender\Windows Defender Verification' | Out-Null"
+        )
+
+        foreach($CMD in $Commands){
+            Invoke-Command -ScriptBlock {
+                Start-Process -FilePath "$PSScriptRoot\NSudo\NSudoLG.exe" -ArgumentList "--U=T --P=E --ShowWindowMode=Hide powershell $CMD"
+            }
+        }  
+
+        Write-Host "Windows Defender" -NoNewline -ForegroundColor Cyan
+        Write-Host " should be " -NoNewline
+        Write-Host "enabled" -NoNewline -ForegroundColor Green
+        Write-Host " now!"
+
+    } else {
+    
+        Write-Host $ErrorMessageTable.NsudoNotFound -ForegroundColor Red
+
+    }
 })
 
 $RestoreEverything.Add_Click({
