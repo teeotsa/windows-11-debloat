@@ -14,7 +14,7 @@ Add-Type -AssemblyName System.Windows.Forms
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
 
-$DoWindowsVersionChecking = $True
+$DoWindowsVersionChecking = $False
 # Dark Mode for PowerShell, change $False to $True to apply Dark Mode
 $PowerShellDarkTheme = $True;
 
@@ -22,8 +22,8 @@ $PowerShellDarkTheme = $True;
 if($DoWindowsVersionChecking -eq $True){
 
     [Int]$MajorVersion = [System.Environment]::OSVersion.Version.Major
-    [Int]$MinorVersion = [System.Environment]::OSVersion.Version.Major
-    [Int]$BuildVersion = [System.Environment]::OSVersion.Version.Major
+    [Int]$MinorVersion = [System.Environment]::OSVersion.Version.Minor
+    [Int]$BuildVersion = [System.Environment]::OSVersion.Version.Build
 
     #10 specifies NT Version of Windows 10
     if($MajorVersion -ne 10){
