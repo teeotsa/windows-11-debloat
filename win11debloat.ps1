@@ -298,16 +298,20 @@ function Restart-Process{
         [Parameter(Mandatory = $True)]
         [String] $Process,
 
-        [Switch] $Restart
-    )
+        [Parameter(Mandatory = $False)]
+        [Switch] $Restart,
 
-    if(Get-Process -Name $Process -ErrorAction SilentlyContinue){
-        Stop-Process -Name $Process -Force -ErrorAction SilentlyContinue | Out-Null
-    }
-    if($Restart){
-        Start-Sleep -Seconds 5
+        [Parameter(Mandatory = $False)]
+        [Int] $RestartDelay = 5
+    )
+    $ProcessPath = (Get-Process -Name $Process).Path
+    Stop-Process -Name $Process.ToString() -Force -ErrorAction SilentlyContinue | Out-Null
+
+    if(($Restart) -and ($ProcessPath -ne $null)){
+        Start-Sleep -Seconds $RestartDelay
+        
         if(!(Get-Process -Name $Process)){
-            Start-Process -FilePath $Process
+            Start-Process -FilePath $ProcessPath -Verb RunAs -ErrorAction SilentlyContinue | Out-Null
         }
     }
 }
@@ -584,6 +588,19 @@ $essentialtweaks.Add_Click({
         }
     }
 
+    $Icon = [System.Windows.Forms.MessageBoxIcon]::Question
+    $Buttons = [System.Windows.Forms.MessageBoxButtons]::YesNo
+    $Title = "Disable xbox Services"
+    $Message = "Do you wish to disable xbox services? Breaks xbox application"
+    $Answer = [System.Windows.Forms.MessageBox]::Show($Message, $Title, $Buttons, $Icon)
+    if($Answer -match "Yes"){
+        Get-Service -Name *WinHttpAutoProxySvc* | Set-Service -StartupType Disabled 
+        Get-Service -Name *WinHttpAutoProxySvc* | Stop-Service -Force
+        Get-Service -Name *Xbl* | Set-Service -StartupType Disabled 
+        Get-Service -Name *Xbl* | Stop-Service -Force
+    }
+        
+
     #Disable Scheduled Tasks if text file is found
     if((Test-Path "$PSScriptRoot\bin\scheduledtasks_list.txt") -and ((Get-Content -Path "$PSScriptRoot\bin\scheduledtasks_list.txt").Length -ge 1)){
         $Content = Get-Content -Path "$PSScriptRoot\bin\scheduledtasks_list.txt"
@@ -776,6 +793,11 @@ $essentialtweaks.Add_Click({
         New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Force | Out-Null
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -Type DWord -Value 0
+
+    #Disable Keyboard BS
+    Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Name "Flags" -Value "506"
+    Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\Keyboard Response" -Name "Flags" -Value "122"
+    Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\ToggleKeys" -Name "Flags" -Value "58"
 
     #Disable Silent Application/Bloatware installation
     #if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")){
@@ -1022,16 +1044,16 @@ $onedrive.Add_Click({
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -Type DWord -Value 1
     Write-Host "Uninstalling OneDrive..."
-    Stop-Process -Name "OneDrive" -ErrorAction SilentlyContinue
-    Start-Sleep -s 2
+    Stop-Process -Name *onedrive* -ErrorAction SilentlyContinue -Force
+    Start-Sleep -Seconds 2
     $onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
     If (!(Test-Path $onedrive)) {
         $onedrive = "$env:SYSTEMROOT\System32\OneDriveSetup.exe"
     }
     Start-Process $onedrive "/uninstall" -NoNewWindow -Wait
-    Start-Sleep -s 2
-    Restart-Process -Process "explorer" -Restart
-    Start-Sleep -s 2
+    Start-Sleep -Seconds 2
+    Restart-Process -Process "explorer" -Restart -RestartDelay 5
+    Start-Sleep -Seconds 2
     Remove-Item -Path "$env:USERPROFILE\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
     Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
     Remove-Item -Path "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
@@ -1041,19 +1063,8 @@ $onedrive.Add_Click({
     }
     Remove-Item -Path "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
     Remove-Item -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
-
-	# Update 6 : Deleting OneDrive setup files requires special premissions, that is the reason why this part of the code
-	# is commented out
-    #foreach ($item in (Get-ChildItem "$env:WinDir\WinSxS\*onedrive*")) {
-    #Takeown-Folder $item.FullName
-    #Remove-Item -Recurse -Force $item.FullName
-    #}
-
-    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "$env:localappdata\Microsoft\OneDrive"
-    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "$env:programdata\Microsoft OneDrive"
-    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "$env:systemdrive\OneDriveTemp"
     If ((Get-ChildItem "$env:userprofile\OneDrive" -Recurse | Measure-Object).Count -eq 0) {
-    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "$env:userprofile\OneDrive"
+        Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "$env:userprofile\OneDrive"
     }
     Write-Host "Disabled OneDrive"
 })
@@ -1111,10 +1122,10 @@ $lightmode.Add_Click({
 })
 
 $disablewindowsupdate.Add_Click({
-    $Service = ("wuauserv", "WaaSMedicSvc", "UsoSvc")
-    foreach($S in $Service){
-        Get-Service -Name $S | Set-Service -StartupType Disabled -ErrorAction SilentlyContinue
-        Stop-Service -Name $S -PassThru -ErrorAction SilentlyContinue | Out-Null
+    $WindowsUpdateServices = ("wuauserv", "WaaSMedicSvc", "UsoSvc")
+    $WindowsUpdateServices | ForEach-Object{
+        Set-Service -Name $_ -StartupType Disabled -ErrorAction SilentlyContinue | Out-Null
+        Stop-Service -Name $_ -ErrorAction SilentlyContinue | Out-Null
     }
     Disable-ScheduledTask -TaskName "\Microsoft\Windows\WindowsUpdate\Scheduled Start" | Out-Null
 
@@ -1133,10 +1144,10 @@ $disablewindowsupdate.Add_Click({
 })
 
 $enablewindowsupdate.Add_Click({
-    $Service = ("wuauserv", "WaaSMedicSvc", "UsoSvc")
-    foreach($S in $Service){
-        Get-Service -Name $S | Set-Service -StartupType Manual -ErrorAction SilentlyContinue
-        Start-Service -Name $S -PassThru -ErrorAction SilentlyContinue | Out-Null
+    $WindowsUpdateServices = ("wuauserv", "WaaSMedicSvc", "UsoSvc")
+    $WindowsUpdateServices | ForEach-Object{
+        Set-Service -Name $_ -StartupType Automatic -ErrorAction SilentlyContinue | Out-Null
+        Start-Service -Name $_ -ErrorAction SilentlyContinue | Out-Null
     }
     Enable-ScheduledTask -TaskName "\Microsoft\Windows\WindowsUpdate\Scheduled Start" | Out-Null
 
@@ -1164,22 +1175,22 @@ $smalltaskbaricons.Add_Click({
 $RemoveTakeOwnership.Add_Click({
     Write-Host "Trying to remove " -NoNewline
     Write-Host "Take Ownership" -ForegroundColor Cyan
-    $RegFile = "
-    Windows Registry Editor Version 5.00
+    $RegFile = @"
+Windows Registry Editor Version 5.00
 
-    [-HKEY_CLASSES_ROOT\*\shell\runas]
+[-HKEY_CLASSES_ROOT\*\shell\runas]
 
-    [-HKEY_CLASSES_ROOT\Directory\shell\runas]
+[-HKEY_CLASSES_ROOT\Directory\shell\runas]
 
-    [-HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shell\TakeOwnership]
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shell\TakeOwnership]
 
-    [-HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Directory\shell\TakeOwnership]
-    "
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Directory\shell\TakeOwnership]
+"@
 
     if(Test-Path $PSScriptRoot\bin\removeTakeOwnership.reg){
         Remove-Item -Path $PSScriptRoot\bin\removeTakeOwnership.reg -Force -ErrorAction SilentlyContinue | Out-Null
         Write-Host "`"removeTakeOwnership.reg`"" -NoNewline -ForegroundColor Cyan
-        Write-Host " was deleted!"
+        Write-Host " was deleted! " -NoNewline
         Write-Host "Trying to create new one..."
     }
 
@@ -1214,25 +1225,24 @@ $UninstallEdge.Add_Click({
 # $microsoftpath = "C:\Program Files (x86)\Microsoft"
 
 
-$edgepath = "C:\Program Files (x86)\Microsoft\Edge\Application\*.*.*.*\Installer"
+$edgepath = "${env:CommonProgramFiles(x86)}\Microsoft\Edge\Application\*.*.*.*\Installer"
 $arguments = "--uninstall --system-level --verbose-logging --force-uninstall"
 
-if(Test-Path "C:\Program Files (x86)\Microsoft\Edge\Application"){
+if(Test-Path "${env:CommonProgramFiles(x86)}\Microsoft\Edge\Application"){
 
-    write-Host "Uninstalling 'Microsoft Edge'..."
-    Start-Process -FilePath "$edgepath\setup.exe" -ArgumentList "$arguments" -Verb RunAs -Wait
+    Write-Host "Uninstalling " -NoNewline
+    Write-Host "Microsoft Edge" -ForegroundColor Cyan
+    Start-Process -FilePath "$edgepath\setup.exe" -ArgumentList $arguments -Verb RunAs -Wait
     Disable-ScheduledTask -TaskName "\MicrosoftEdgeUpdateTaskMachineUA" | Out-Null
     Disable-ScheduledTask -TaskName "\MicrosoftEdgeUpdateTaskMachineCore" | Out-Null
-    $edgeservices = @(
-        "edgeupdatem"
-        "edgeupdate"
-        "MicrosoftEdgeElevationService"
-    )
-    foreach($edge in $edgeservices){
-        $SetService = Get-Service $edge | Set-Service -StartupType Disabled -PassThru -ErrorAction SilentlyContinue
-        $SetService | Out-Null
+    $Edgeservices = @("edgeupdatem", "edgeupdate", "MicrosoftEdgeElevationService")
+    $Edgeservices | ForEach-Object {
+        Set-Service -Name $_ -StartupType Disabled -ErrorAction SilentlyContinue | Out-Null
+        Stop-Service -Name $_ -NoWait -Force -ErrorAction SilentlyContinue | Out-Null
     }
-    write-Host "Clearing Edge regristry keys..."
+    Write-Host "Clearing " -NoNewline
+    Write-Host "Microsoft Edge's" -NoNewline -ForegroundColor Cyan
+    Write-Host " registry keys!"
     if(!(Test-Path "HKLM:\SOFTWARE\Microsoft")){
         New-Item -Path "HKLM:\SOFTWARE\Microsoft" -Force | Out-Null
     }
@@ -1250,25 +1260,27 @@ if(Test-Path "C:\Program Files (x86)\Microsoft\Edge\Application"){
         Remove-Item -Path "HKLM:\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate" -Force -Recurse -ErrorAction SilentlyContinue | Out-Null
     }
     if(!(Test-Path "HKCR:\")){
-        New-PSDrive -PSProvider registry -Root HKEY_CLASSES_ROOT -Name HKCR | Out-Null
+        New-PSDrive -PSProvider Registry -Root HKEY_CLASSES_ROOT -Name HKCR | Out-Null
     }
     Remove-Item -Path "Microsoft.PowerShell.Core\Registry::HKEY_CLASSES_ROOT\*MicrosoftEdge*" -Force | Out-Null
     Remove-Item -Path "Microsoft.PowerShell.Core\Registry::HKEY_CLASSES_ROOT\*microsoft-edge*" -Force | Out-Null
     Remove-Item -Path "Microsoft.PowerShell.Core\Registry::HKEY_CLASSES_ROOT\*edge*" -Force | Out-Null
 
-    write-Host "Removing all 'Microsoft Edge' files!"
+    Write-Host "Removing " -NoNewline
+    Write-Host "Microsoft Edge's" -NoNewline -ForegroundColor Cyan
+    Write-Host " files!"
 
-    $edgechilditems = Get-ChildItem -Path 'C:\Program Files (x86)\Microsoft\Edge'
-    foreach($item in $edgechilditems){
-        Remove-Item -Path $item.fullname -Force -ErrorAction SilentlyContinue | Out-Null
+    $edgechilditems = Get-ChildItem -Path "${env:CommonProgramFiles(x86)}\Microsoft\Edge"
+    $edgechilditems | ForEach-Object{
+        Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
     }
-    $edgeupdatechilditems = Get-ChildItem -Path 'C:\Program Files (x86)\Microsoft\EdgeUpdate'
-    foreach($updateitem in $edgeupdatechilditems){
-        Remove-Item -Path $updateitem.fullname -Force -Recurse -ErrorAction SilentlyContinue | Out-Null
+    $edgeupdatechilditems = Get-ChildItem -Path "${env:CommonProgramFiles(x86)}\Microsoft\EdgeUpdate"
+    $edgechilditems | ForEach-Object{
+        Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
     }
-    $edgetempchilditems = Get-ChildItem -Path 'C:\Program Files (x86)\Microsoft\Temp'
-    foreach($temp in $edgetempchilditems){
-        Remove-Item -Path $temp.fullname -Force -Recurse -ErrorAction SilentlyContinue | Out-Null
+    $edgetempchilditems = Get-ChildItem -Path "${env:CommonProgramFiles(x86)}\Microsoft\Temp"
+    $edgechilditems | ForEach-Object{
+        Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
     }
 
     #Remove Edge Services
@@ -1279,11 +1291,15 @@ if(Test-Path "C:\Program Files (x86)\Microsoft\Edge\Application"){
         Remove-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\edgeupdatem" -Force | Out-Null
     }
 
-    write-Host "'Microsoft Edge' is now removed!"
+    New-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name DisableEdgeDesktopShortcutCreation -PropertyType DWORD -Value 1
+    
+    Write-Host "Microsoft Edge " -NoNewline -ForegroundColor Cyan
+    Write-Host "has been removed"
 
 } else {
 
-    write-Host "'Microsoft Edge' is not installed!"
+    Write-Host "Microsoft Edge " -NoNewline -ForegroundColor Cyan
+    Write-Host "is not even installed?"
 
 }
 
@@ -1337,7 +1353,238 @@ $EditScript.Add_Click({
 
 
 $RestoreTweaks.Add_Click({
-    Write-Host "Currently, not done! Use Restore Point" -ForegroundColor Red
+    #     From Chris Titus Tech's script!
+    #     https://github.com/ChrisTitusTech/win10script/blob/master/win10debloat.ps1#L1128
+
+    Write-Host "Creating Restore Point incase something bad happens"
+    Enable-ComputerRestore -Drive $env:SystemDrive
+    Checkpoint-Computer -Description "RestorePoint1" -RestorePointType "MODIFY_SETTINGS"
+
+    Write-Host "Enabling Telemetry..."
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 1
+    Write-Host "Enabling Wi-Fi Sense"
+    Set-ItemProperty -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting" -Name "Value" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowAutoConnectToWiFiSenseHotspots" -Name "Value" -Type DWord -Value 1
+    Write-Host "Enabling Application suggestions..."
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "ContentDeliveryAllowed" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "OemPreInstalledAppsEnabled" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "PreInstalledAppsEnabled" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "PreInstalledAppsEverEnabled" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SilentInstalledAppsEnabled" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338387Enabled" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338388Enabled" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338389Enabled" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353698Enabled" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SystemPaneSuggestionsEnabled" -Type DWord -Value 1
+    If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent")) {
+        Remove-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Recurse -ErrorAction SilentlyContinue
+    }
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 0
+    Write-Host "Enabling Activity History..."
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "PublishUserActivities" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "UploadUserActivities" -Type DWord -Value 1
+    Write-Host "Enable Location Tracking..."
+    If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location")) {
+        Remove-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Recurse -ErrorAction SilentlyContinue
+    }
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -Type String -Value "Allow"
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Name "SensorPermissionState" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration" -Name "Status" -Type DWord -Value 1
+    Write-Host "Enabling automatic Maps updates..."
+    Set-ItemProperty -Path "HKLM:\SYSTEM\Maps" -Name "AutoUpdateEnabled" -Type DWord -Value 1
+    Write-Host "Enabling Feedback..."
+    If (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Siuf\Rules")) {
+        Remove-Item -Path "HKCU:\SOFTWARE\Microsoft\Siuf\Rules" -Recurse -ErrorAction SilentlyContinue
+    }
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Siuf\Rules" -Name "NumberOfSIUFInPeriod" -Type DWord -Value 0
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 0
+    Write-Host "Enabling Tailored Experiences..."
+    If (!(Test-Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CloudContent")) {
+        Remove-Item -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Recurse -ErrorAction SilentlyContinue
+    }
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableTailoredExperiencesWithDiagnosticData" -Type DWord -Value 0
+    Write-Host "Disabling Advertising ID..."
+    If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo")) {
+        Remove-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" -Recurse -ErrorAction SilentlyContinue
+    }
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" -Name "DisabledByGroupPolicy" -Type DWord -Value 0
+    Write-Host "Allow Error reporting..."
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting" -Name "Disabled" -Type DWord -Value 0
+    Write-Host "Allowing Diagnostics Tracking Service..."
+    Stop-Service "DiagTrack" -WarningAction SilentlyContinue
+    Set-Service "DiagTrack" -StartupType Manual
+    Write-Host "Allowing WAP Push Service..."
+    Stop-Service "dmwappushservice" -WarningAction SilentlyContinue
+    Set-Service "dmwappushservice" -StartupType Manual
+    Write-Host "Allowing Home Groups services..."
+    Stop-Service "HomeGroupListener" -WarningAction SilentlyContinue
+    Set-Service "HomeGroupListener" -StartupType Manual
+    Stop-Service "HomeGroupProvider" -WarningAction SilentlyContinue
+    Set-Service "HomeGroupProvider" -StartupType Manual
+    Write-Host "Enabling Storage Sense..."
+    New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" | Out-Null
+    Write-Host "Allowing Superfetch service..."
+    Stop-Service "SysMain" -WarningAction SilentlyContinue
+    Set-Service "SysMain" -StartupType Manual
+    Write-Host "Setting BIOS time to Local Time instead of UTC..."
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" -Name "RealTimeIsUniversal" -Type DWord -Value 0
+    Write-Host "Enabling Hibernation..."
+    Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Session Manager\Power" -Name "HibernteEnabled" -Type Dword -Value 1
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings" -Name "ShowHibernateOption" -Type Dword -Value 1
+	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Name "NoLockScreen" -ErrorAction SilentlyContinue
+
+    Write-Host "Hiding file operations details..."
+    If (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\OperationStatusManager")) {
+        Remove-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\OperationStatusManager" -Recurse -ErrorAction SilentlyContinue
+    }
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\OperationStatusManager" -Name "EnthusiastMode" -Type DWord -Value 0
+    Write-Host "Showing Task View button..."
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -Name "PeopleBand" -Type DWord -Value 1
+
+    Write-Host "Changing default Explorer view to Quick Access..."
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 0
+
+    Write-Host "Unrestricting AutoLogger directory"
+    $autoLoggerDir = "$env:PROGRAMDATA\Microsoft\Diagnosis\ETLLogs\AutoLogger"
+    icacls $autoLoggerDir /grant:r SYSTEM:`(OI`)`(CI`)F | Out-Null
+
+    Write-Host "Enabling and starting Diagnostics Tracking Service"
+    Set-Service "DiagTrack" -StartupType Automatic
+    Start-Service "DiagTrack"
+
+    Write-Host "Hiding known file extensions"
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 1
+
+    Write-Host "Reset Local Group Policies to Stock Defaults"
+    # cmd /c secedit /configure /cfg %windir%\inf\defltbase.inf /db defltbase.sdb /verbose
+    cmd /c RD /S /Q "%WinDir%\System32\GroupPolicyUsers"
+    cmd /c RD /S /Q "%WinDir%\System32\GroupPolicy"
+    cmd /c gpupdate /force
+    # Considered using Invoke-GPUpdate but requires module most people won't have installed
+
+    $Services = @(
+        "*xbox*" # Xbox Services
+        "*Xbl*" # Xbox Services
+        "LanmanWorkstation"
+        "workfolderssvc"
+        "WinHttpAutoProxySvc" # NSudo Required
+        "WSearch" # Windows Search
+        "PushToInstall" # Needed for Microsoft Store
+        "icssvc" # Mobile Hotspot
+        "MixedRealityOpenXRSvc" # Mixed Reality
+        "WMPNetworkSvc" # Windows Media Player Sharing
+        "LicenseManager" # License Manager for Microsoft Store
+        "wisvc" # Insider Program
+        "WerSvc" # Error Reporting
+        "WalletService" # Wallet Service
+        "lmhosts" # TCP/IP NetBIOS Helper
+        "SysMain" # SuperFetch - Safe to disable if you have a SSD
+        "svsvc" # Spot Verifier
+        "sppsvc" # Software Protection
+        "SCPolicySvc" # Smart Card Removal Policy
+        "ScDeviceEnum" # Smart Card Device Enumeration Service
+        "SCardSvr" # Smart Card
+        "LanmanServer" # Server
+        "SensorService" # Sensor Service
+        "RetailDemo" # Retail Demo Service
+        "RemoteRegistry" # Remote Registry
+        "UmRdpService" # Remote Desktop Services UserMode Port Redirector
+        "TermService" # Remote Desktop Services
+        "SessionEnv" # Remote Desktop Configuration
+        "RasMan" # Remote Access Connection Manager
+        "RasAuto" # Remote Access Auto Connection Manager
+        "TroubleshootingSvc" # Recommended Troubleshooting Service
+        "RmSvc" # Radio Management Service (Might be needed for laptops)
+        "QWAVE" # Quality Windows Audio Video Experience
+        "wercplsupport" # Problem Reports Control Panel Support
+        "Spooler" # Print Spooler
+        "PrintNotify" # Printer Extensions and Notifications
+        "PhoneSvc" # Phone Service
+        "SEMgrSvc" # Payments and NFC/SE Manager
+        "WpcMonSvc" # Parental Controls
+        "CscService" # Offline Files
+        "InstallService" # Microsoft Store Install Service
+        "SmsRouter" # Microsoft Windows SMS Router Service
+        "smphost" # Microsoft Storage Spaces SMP
+        "NgcCtnrSvc" # Microsoft Passport Container
+        "MsKeyboardFilter" # Microsoft Keyboard Filter ... thanks (.AtomRadar treasury ♛#8267) for report. 
+        "cloudidsvc" # Microsoft Cloud Identity Service
+        "wlidsvc" # Microsoft Account Sign-in Assistant
+        "*diagnosticshub*" # Microsoft (R) Diagnostics Hub Standard Collector Service
+        "iphlpsvc" # IP Helper - Might break some VPN Clients
+        "lfsvc" # Geolocation Service
+        "fhsvc" # File History Service
+        "Fax" # Fax
+        "embeddedmode" # Embedded Mode
+        "MapsBroker" # Downloaded Maps Manager
+        "TrkWks" # Distributed Link Tracking Client
+        "WdiSystemHost" # Diagnostic System Host
+        "WdiServiceHost" # Diagnostic Service Host
+        "DPS" # Diagnostic Policy Service
+        "diagsvc" # Diagnostic Execution Service
+        "DoSvc" # Delivery Optimization
+        "DusmSvc" # Data Usage
+        "VaultSvc" # Credential Manager
+        "AppReadiness" # App Readiness
+    ) ; $Services | ForEach-Object{
+        Set-Service -Name $_ -StartupType Manual
+        Write-Host "Service `"" -NoNewline
+        Write-Host $_ -ForegroundColor Green -NoNewline
+        Write-Host "`" has been enabled! [-Manual- Startup Type]"
+    }
+
+    $ScheduledTasks = @(
+        "\MicrosoftEdgeUpdateTaskMachineCore"
+        "\MicrosoftEdgeUpdateTaskMachineUA"
+        "\Microsoft\Windows\ApplicationData\CleanupTemporaryState"
+        "\Microsoft\Windows\ApplicationData\DsSvcCleanup"
+        "\Microsoft\Windows\AppxDeploymentClient\Pre-stagedappcleanup"
+        "\Microsoft\Windows\Autochk\Proxy"
+        "\Microsoft\Windows\BrokerInfrastructure\BgTaskRegistrationMaintenanceTask"
+        "\Microsoft\Windows\capabilityaccessmanager\maintenancetasks"
+        "\Microsoft\Windows\Chkdsk\ProactiveScan"
+        "\Microsoft\Windows\Chkdsk\SyspartRepair"
+        "\Microsoft\Windows\Clip\LicenseValidation"
+        "\Microsoft\Windows\CloudExperienceHost\CreateObjectTask"
+        "\Microsoft\Windows\CustomerExperienceImprovementProgram\Consolidator"
+        "\Microsoft\Windows\CustomerExperienceImprovementProgram\UsbCeip"
+        "\Microsoft\Windows\Defrag\ScheduledDefrag"
+        "\Microsoft\Windows\DeviceInformation\Device"
+        "\Microsoft\Windows\DeviceInformation\DeviceUser"
+        "\Microsoft\Windows\DeviceSetup\MetadataRefresh"
+        "\Microsoft\Windows\ExploitGuard\ExploitGuardMDMpolicyRefresh"
+        "\Microsoft\Windows\Feedback\Siuf\DmClient"
+        "\Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload"
+        "\Microsoft\Windows\FileHistory\FileHistory*"
+        "\Microsoft\Windows\Location\Notifications"
+        "\Microsoft\Windows\Location\WindowsActionDialog"
+        "\Microsoft\Windows\Maps\MapsToastTask"
+        "\Microsoft\Windows\Maps\MapsUpdateTask"
+        "\Microsoft\Windows\MemoryDiagnostic\ProcessMemoryDiagnosticEvents"
+        "\Microsoft\Windows\MemoryDiagnostic\RunFullMemoryDiagnostic"
+        "\Microsoft\Windows\MUI\LPRemove"
+        "\Microsoft\Windows\Multimedia\SystemSoundsService"
+        "\Microsoft\Windows\OfflineFiles\BackgroundSynchronization"
+        "\Microsoft\Windows\OfflineFiles\LogonSynchronization"
+        "\Microsoft\Windows\Printing\EduPrintProv"
+        "\Microsoft\Windows\Printing\PrinterCleanupTask"
+        "\Microsoft\Windows\PushToInstall\LoginCheck"
+        "\Microsoft\Windows\PushToInstall\Registration"
+        "\Microsoft\Windows\RetailDemo\CleanupOfflineContent"
+        "\Microsoft\Windows\Servicing\StartComponentCleanup"
+        "\Microsoft\Windows\Setup\SetupCleanupTask"
+        "\Microsoft\Windows\SharedPC\AccountCleanup"
+        "\Microsoft\Windows\UNP\RunUpdateNotificationMgr"
+        "\Microsoft\Windows\WindowsErrorReporting\QueueReporting"
+        "\Microsoft\XblGameSave\XblGameSaveTask"
+    ) ; $ScheduledTasks | ForEach-Object{
+        Enable-ScheduledTask -TaskName $_ -AsJob | Out-Null
+    }
+
+    Write-Host "Essential Undo Completed"
 })
 
 $EnableActionCenter.Add_Click({
@@ -1380,7 +1627,7 @@ $RestoreVisual.Add_Click({
 
 $DefaultTaskbarIco.Add_Click({
     Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarSi" -Force | Out-Null
-    Restart-Process -Process "explorer" -Restart
+    Restart-Process -Process "explorer" -Restart -RestartDelay 5
     Write-Host "You should have Default size Tasbkar now"
 })
 
@@ -1475,7 +1722,16 @@ $EnableWindowsDefender.Add_Click({
 })
 
 $RestoreEverything.Add_Click({
-    Write-Host "Currently, not done! Use Restore Point" -ForegroundColor Red
+    $Title = "Restore Everything..."
+    $Message = "Currently, `"Restore Everything`" code is not done! Please use `"Restore Points`". Would you like to launch GUI to roll back?"
+    $Buttons = [System.Windows.Forms.MessageBoxButtons]::YesNo
+    $Icon = [System.Windows.Forms.MessageBoxIcon]::Warning
+    $Answer = [System.Windows.Forms.MessageBox]::Show($Message, $Title, $Buttons, $Icon)
+    if($Answer -match "Yes"){
+        if(Test-Path $env:SystemRoot\System32\rstrui.exe){
+            Start-Process -FilePath $env:SystemRoot\System32\rstrui.exe
+        }
+    }
 
 <#
     Write-Host "Creating Restore Point incase something bad happens"

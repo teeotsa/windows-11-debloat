@@ -3,11 +3,12 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 	Exit
 }
 
-Write-Host "Beware! THIS SCRIPT WILL REMOVE ALL STARTUP ITEMS1 Please
-type `"[Y]`" to CONTINUE. Otherwise just close this window!" -ForegroundColor Red
-Start-Sleep -Seconds 3
-[String]$Answer = Read-Host 
-if($Answer -eq "y"){
+$Icon = [System.Windows.Forms.MessageBoxIcon]::Question
+$Buttons = [System.Windows.Forms.MessageBoxButtons]::YesNo
+$Title = "Remove startup programs!"
+$Message = "Do you wish to remove ALL startup programs? Might break certain applications!"
+$Answer = [System.Windows.Forms.MessageBox]::Show($Message, $Title, $Buttons, $Icon)
+if($Answer -match "Yes"){
 	$StartupFolder = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run";
 	Remove-Item -Path $StartupFolder -Force -Recurse -ErrorAction SilentlyContinue | Out-Null
 	New-Item -Path $StartupFolder -Force  -ErrorAction SilentlyContinue | Out-Null
