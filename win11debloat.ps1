@@ -1,60 +1,45 @@
 Add-Type -AssemblyName System.Windows.Forms
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
-$DoWindowsVersionChecking = $False
+$DoWindowsVersionChecking = $True
 $PowerShellDarkTheme = $True
 
-
+#If you use PowerShell ISE and try to run this script, you'll get error! Use PowerShell instead!
 if($DoWindowsVersionChecking -eq $True){
-    [Int]$MajorVersion = [System.Environment]::OSVersion.Version.Major
-    [Int]$MinorVersion = [System.Environment]::OSVersion.Version.Minor
-    [Int]$BuildVersion = [System.Environment]::OSVersion.Version.Build
+    [String]$RegistryKey     = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
+    [String]$Name            = "ProductName"
+    [String]$RequiredWindows = "Windows 10"
+    [String]$Value           = Get-ItemPropertyValue -Path $RegistryKey -Name $Name -ErrorAction SilentlyContinue
 
-    if($MajorVersion -ne 10){
-        Write-Host "This script is only designed to run on " -NoNewline
-        Write-Host "Windows 11`n`n" -ForegroundColor Cyan
-        Write-Host "Script will be closed in " -NoNewline
-        Write-Host "5 seconds" -ForegroundColor Red
-        Start-Sleep -Seconds 5
-        Exit
-        Return
-    }
-
-    if($BuildVersion -lt 22000){
-        Write-Host "This script is only designed to run on " -NoNewline
-        Write-Host "Windows 11`n`n" -ForegroundColor Cyan
-        Write-Host "Script will be closed in " -NoNewline
-        Write-Host "5 seconds" -ForegroundColor Red
-        Start-Sleep -Seconds 5
-        Exit
-        Return
+    if(!($Value -match $RequiredWindows)){
+        $Host.UI.RawUI.WindowTitle = "Unsupported Operating System..."
+        $Host.UI.RawUI.Backgroundcolor = "Black"
+        Clear-Host
+        Write-Host "This script is only supported on " -NoNewline
+        Write-Host $RequiredWindows -ForegroundColor Cyan -NoNewline
+        Write-Host ". Please close this script now (Press any key)"
+        $Console = [System.Console]::ReadKey()
+        if($Console){Exit ; Return}
     }
 }
 
-# Apply Dark Theme to PowerShell
 if($PowerShellDarkTheme -eq $True){
     $Console = $Host.UI.RawUI
-    $Console.Backgroundcolor = "Black";
-    $Console.Foregroundcolor = "White";
-    #Apply Dark Mode to console with Clear-Host
+    $Console.Backgroundcolor = "Black"; $Console.Foregroundcolor = "White";
     Clear-Host
 }
 
-# Launch Script as administrator!
 If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
 	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
 	Exit
 }
 
-#Some Form settings
-$OtherTweaksLeft = 275
-$SystemTweaksLeft = 40
-
-# Custom Title for PowerShell's Window
 $Console = $Host.UI.RawUI
 $Console.WindowTitle = "Windows 11 Debloater GUI"
 
-#Message from the author!
+Write-Host "Wait, creating Restore Point..." 
+Enable-ComputerRestore -Drive $env:SystemDrive
+Checkpoint-Computer -Description "RestorePoint1" -RestorePointType "MODIFY_SETTINGS"
 Write-Host "Thank you for your amazing support on my Github Repository! (31 Stars!!!)" 
 Write-Host "Merry Christmas" -ForegroundColor Red -NoNewline
 Write-Host " from " -NoNewline 
@@ -85,133 +70,133 @@ $essentialtweaks                 = New-Object system.Windows.Forms.Button
 $essentialtweaks.text            = "Essential Tweaks"
 $essentialtweaks.width           = 204
 $essentialtweaks.height          = 30
-$essentialtweaks.location        = New-Object System.Drawing.Point($SystemTweaksLeft,56)
+$essentialtweaks.location        = New-Object System.Drawing.Point(40,56)
 $essentialtweaks.Font            = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $RestoreTweaks                   = New-Object system.Windows.Forms.Button
 $RestoreTweaks.text              = "Restore Tweaks"
 $RestoreTweaks.width             = 204
 $RestoreTweaks.height            = 30
-$RestoreTweaks.location          = New-Object System.Drawing.Point($SystemTweaksLeft,86)
+$RestoreTweaks.location          = New-Object System.Drawing.Point(40,86)
 $RestoreTweaks.Font              = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $actioncenter                    = New-Object system.Windows.Forms.Button
 $actioncenter.text               = "Disable Action Center"
 $actioncenter.width              = 203
 $actioncenter.height             = 30
-$actioncenter.location           = New-Object System.Drawing.Point($SystemTweaksLeft,136)
+$actioncenter.location           = New-Object System.Drawing.Point(40,136)
 $actioncenter.Font               = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $EnableActionCenter              = New-Object system.Windows.Forms.Button
 $EnableActionCenter.text         = "Enable Action Center"
 $EnableActionCenter.width        = 203
 $EnableActionCenter.height       = 30
-$EnableActionCenter.location     = New-Object System.Drawing.Point($SystemTweaksLeft,166)
+$EnableActionCenter.location     = New-Object System.Drawing.Point(40,166)
 $EnableActionCenter.Font         = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $backgroundapps                  = New-Object system.Windows.Forms.Button
 $backgroundapps.text             = "Disable Background Apps"
 $backgroundapps.width            = 205
 $backgroundapps.height           = 30
-$backgroundapps.location         = New-Object System.Drawing.Point($SystemTweaksLeft,216)
+$backgroundapps.location         = New-Object System.Drawing.Point(40,216)
 $backgroundapps.Font             = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $EnableBGApps                    = New-Object system.Windows.Forms.Button
 $EnableBGApps.text               = "Enable Background Apps"
 $EnableBGApps.width              = 205
 $EnableBGApps.height             = 30
-$EnableBGApps.location           = New-Object System.Drawing.Point($SystemTweaksLeft,246)
+$EnableBGApps.location           = New-Object System.Drawing.Point(40,246)
 $EnableBGApps.Font               = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $cortana                         = New-Object system.Windows.Forms.Button
 $cortana.text                    = "Disable Cortana (Search)"
 $cortana.width                   = 204
 $cortana.height                  = 30
-$cortana.location                = New-Object System.Drawing.Point($SystemTweaksLeft,296)
+$cortana.location                = New-Object System.Drawing.Point(40,296)
 $cortana.Font                    = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $EnableCortana                   = New-Object system.Windows.Forms.Button
 $EnableCortana.text              = "Enable Cortana (Search)"
 $EnableCortana.width             = 204
 $EnableCortana.height            = 30
-$EnableCortana.location          = New-Object System.Drawing.Point($SystemTweaksLeft,326)
+$EnableCortana.location          = New-Object System.Drawing.Point(40,326)
 $EnableCortana.Font              = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $darkmode                        = New-Object system.Windows.Forms.Button
 $darkmode.text                   = "Dark Mode"
 $darkmode.width                  = 204
 $darkmode.height                 = 30
-$darkmode.location               = New-Object System.Drawing.Point($SystemTweaksLeft,376)
+$darkmode.location               = New-Object System.Drawing.Point(40,376)
 $darkmode.Font                   = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $lightmode                       = New-Object system.Windows.Forms.Button
 $lightmode.text                  = "Light Mode"
 $lightmode.width                 = 204
 $lightmode.height                = 30
-$lightmode.location              = New-Object System.Drawing.Point($SystemTweaksLeft,406)
+$lightmode.location              = New-Object System.Drawing.Point(40,406)
 $lightmode.Font                  = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $visualfx                        = New-Object system.Windows.Forms.Button
 $visualfx.text                   = "Basic Visual FX"
 $visualfx.width                  = 204
 $visualfx.height                 = 30
-$visualfx.location               = New-Object System.Drawing.Point($SystemTweaksLeft,456)
+$visualfx.location               = New-Object System.Drawing.Point(40,456)
 $visualfx.Font                   = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $RestoreVisual                   = New-Object system.Windows.Forms.Button
 $RestoreVisual.text              = "Appearance Visual FX"
 $RestoreVisual.width             = 204
 $RestoreVisual.height            = 30
-$RestoreVisual.location          = New-Object System.Drawing.Point($SystemTweaksLeft,486)
+$RestoreVisual.location          = New-Object System.Drawing.Point(40,486)
 $RestoreVisual.Font              = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $RestoreEverything               = New-Object system.Windows.Forms.Button
 $RestoreEverything.text          = "Restore Everything"
 $RestoreEverything.width         = 204
 $RestoreEverything.height        = 30
-$RestoreEverything.location      = New-Object System.Drawing.Point($SystemTweaksLeft,536)
+$RestoreEverything.location      = New-Object System.Drawing.Point(40,536)
 $RestoreEverything.Font          = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $smalltaskbaricons               = New-Object system.Windows.Forms.Button
 $smalltaskbaricons.text          = "Use Small Taskbar"
 $smalltaskbaricons.width         = 250
 $smalltaskbaricons.height        = 30
-$smalltaskbaricons.location      = New-Object System.Drawing.Point($OtherTweaksLeft,136)
+$smalltaskbaricons.location      = New-Object System.Drawing.Point(275,136)
 $smalltaskbaricons.Font          = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $DefaultTaskbarIco               = New-Object system.Windows.Forms.Button
 $DefaultTaskbarIco.text          = "Default Taskbar"
 $DefaultTaskbarIco.width         = 250
 $DefaultTaskbarIco.height        = 30
-$DefaultTaskbarIco.location      = New-Object System.Drawing.Point($OtherTweaksLeft,166)
+$DefaultTaskbarIco.location      = New-Object System.Drawing.Point(275,166)
 $DefaultTaskbarIco.Font          = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $disablewindowsupdate            = New-Object system.Windows.Forms.Button
 $disablewindowsupdate.text       = "Disable Windows Update"
 $disablewindowsupdate.width      = 250
 $disablewindowsupdate.height     = 30
-$disablewindowsupdate.location   = New-Object System.Drawing.Point($OtherTweaksLeft,56)
+$disablewindowsupdate.location   = New-Object System.Drawing.Point(275,56)
 $disablewindowsupdate.Font       = New-Object System.Drawing.Font('Microsoft Sans Serif',14)
 
 $enablewindowsupdate             = New-Object system.Windows.Forms.Button
 $enablewindowsupdate.text        = "Enable Windows Update"
 $enablewindowsupdate.width       = 250
 $enablewindowsupdate.height      = 30
-$enablewindowsupdate.location    = New-Object System.Drawing.Point($OtherTweaksLeft,86)
+$enablewindowsupdate.location    = New-Object System.Drawing.Point(275,86)
 $enablewindowsupdate.Font        = New-Object System.Drawing.Font('Microsoft Sans Serif',14)
 
 $RemoveTakeOwnership             = New-Object system.Windows.Forms.Button
 $RemoveTakeOwnership.text        = "Remove Take Ownership"
 $RemoveTakeOwnership.width       = 250
 $RemoveTakeOwnership.height      = 30
-$RemoveTakeOwnership.location    = New-Object System.Drawing.Point($OtherTweaksLeft,216)
+$RemoveTakeOwnership.location    = New-Object System.Drawing.Point(275,216)
 $RemoveTakeOwnership.Font        = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $TakeOwnership                   = New-Object system.Windows.Forms.Button
 $TakeOwnership.text              = "Take Ownership"
 $TakeOwnership.width             = 250
 $TakeOwnership.height            = 30
-$TakeOwnership.location          = New-Object System.Drawing.Point($OtherTweaksLeft,246)
+$TakeOwnership.location          = New-Object System.Drawing.Point(275,246)
 $TakeOwnership.Font              = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $OtherTweaks                     = New-Object system.Windows.Forms.Label
@@ -226,28 +211,28 @@ $onedrive                        = New-Object system.Windows.Forms.Button
 $onedrive.text                   = "Uninstall OneDrive"
 $onedrive.width                  = 250
 $onedrive.height                 = 30
-$onedrive.location               = New-Object System.Drawing.Point($OtherTweaksLeft,326)
+$onedrive.location               = New-Object System.Drawing.Point(275,326)
 $onedrive.Font                   = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $RemoveBloat                     = New-Object system.Windows.Forms.Button
 $RemoveBloat.text                = "Uninstall Bloatware"
 $RemoveBloat.width               = 250
 $RemoveBloat.height              = 30
-$RemoveBloat.location            = New-Object System.Drawing.Point($OtherTweaksLeft,366)
+$RemoveBloat.location            = New-Object System.Drawing.Point(275,366)
 $RemoveBloat.Font                = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $UninstallEdge                   = New-Object system.Windows.Forms.Button
 $UninstallEdge.text              = "Uninstall Edge"
 $UninstallEdge.width             = 250
 $UninstallEdge.height            = 30
-$UninstallEdge.location          = New-Object System.Drawing.Point($OtherTweaksLeft,406)
+$UninstallEdge.location          = New-Object System.Drawing.Point(275,406)
 $UninstallEdge.Font              = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $EditScript                      = New-Object system.Windows.Forms.Button
 $EditScript.text                 = "Edit this Script!"
 $EditScript.width                = 250
 $EditScript.height               = 30
-$EditScript.location             = New-Object System.Drawing.Point($OtherTweaksLeft,446)
+$EditScript.location             = New-Object System.Drawing.Point(275,446)
 $EditScript.Font                 = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $Label15                         = New-Object system.Windows.Forms.Label
@@ -262,19 +247,20 @@ $DisableWindowsDefender          = New-Object system.Windows.Forms.Button
 $DisableWindowsDefender.text     = "Disable Windows Defender"
 $DisableWindowsDefender.width    = 250
 $DisableWindowsDefender.height   = 30
-$DisableWindowsDefender.location = New-Object System.Drawing.Point($OtherTweaksLeft,486)
+$DisableWindowsDefender.location = New-Object System.Drawing.Point(275,486)
 $DisableWindowsDefender.Font     = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $EnableWindowsDefender           = New-Object system.Windows.Forms.Button
 $EnableWindowsDefender.text      = "Enable Windows Defender"
 $EnableWindowsDefender.width     = 250
 $EnableWindowsDefender.height    = 30
-$EnableWindowsDefender.location  = New-Object System.Drawing.Point($OtherTweaksLeft,526)
+$EnableWindowsDefender.location  = New-Object System.Drawing.Point(275,526)
 $EnableWindowsDefender.Font      = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 function Restart-Process{
     param(
         [Parameter(Mandatory = $True)]
+        [ValidateScript({Get-Process -Name $_})]
         [String] $Process,
 
         [Parameter(Mandatory = $False)]
@@ -315,11 +301,6 @@ function Test-RegistryValue {
 $Form.controls.AddRange(@($EnableWindowsDefender,$DisableWindowsDefender,$RestoreEverything,$EditScript,$OtherTweaks,$EditScript,$UninstallEdge,$RemoveBloat,$onedrive,$TakeOwnership,$RemoveTakeOwnership,$DefaultTaskbarIco,$smalltaskbaricons,$enablewindowsupdate,$disablewindowsupdate,$RestoreVisual,$visualfx,$lightmode,$darkmode,$EnableCortana,$cortana,$essentialtweaks,$RestoreTweaks,$Label3,$actioncenter,$EnableActionCenter,$backgroundapps,$EnableBGApps))
 
 $essentialtweaks.Add_Click({
-
-    Write-Host "Making Restore Point... Please wait" -ForegroundColor Cyan
-    Enable-ComputerRestore -Drive $env:SystemDrive
-    Checkpoint-Computer -Description "RestorePoint1" -RestorePointType "MODIFY_SETTINGS"
-
     Set-Location "$PSScriptRoot\bin"
     if(!(Test-Path "$PSScriptRoot\bin\OOSU10.exe")){
         Import-Module BitsTransfer
@@ -398,11 +379,6 @@ $essentialtweaks.Add_Click({
     Set-Service "dmwappushservice" -StartupType Disabled
     Write-Host "Enabling F8 boot menu options..."
     bcdedit /set `{current`} bootmenupolicy Legacy | Out-Null
-    Write-Host "Stopping and disabling Home Groups services..."
-    Stop-Service "HomeGroupListener" -WarningAction SilentlyContinue
-    Set-Service "HomeGroupListener" -StartupType Disabled
-    Stop-Service "HomeGroupProvider" -WarningAction SilentlyContinue
-    Set-Service "HomeGroupProvider" -StartupType Disabled
     Write-Host "Disabling Remote Assistance..."
     Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Name "fAllowToGetHelp" -Type DWord -Value 0
     Write-Host "Disabling Storage Sense..."
@@ -479,13 +455,6 @@ $essentialtweaks.Add_Click({
         Remove-Item "$autoLoggerDir\AutoLogger-Diagtrack-Listener.etl"
     }
     icacls $autoLoggerDir /deny SYSTEM:`(OI`)`(CI`)F | Out-Null
-
-    #Disable Sticky Keys
-    if (!(Test-Path "HKCU:\Control Panel\Accessibility\StickyKeys")){
-        New-Item -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Force | Out-Null
-    }
-    Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Name "Flags" -Type String -Value "506"
-    write-Host "Sticky Keys should be disabled now"
 
     #Disable LockScreen
     If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\Personalization")) {
@@ -575,7 +544,6 @@ $essentialtweaks.Add_Click({
         #"*Xbl*" # Xbox Services
         "LanmanWorkstation"
         "workfolderssvc"
-        #"WinHttpAutoProxySvc" # NSudo Required
         #"WSearch" # Windows Search
         #"PushToInstall" # Needed for Microsoft Store
         #"icssvc" # Mobile Hotspot
@@ -630,7 +598,6 @@ $essentialtweaks.Add_Click({
         "WdiServiceHost" # Diagnostic Service Host
         "DPS" # Diagnostic Policy Service
         "diagsvc" # Diagnostic Execution Service
-        "DoSvc" # Delivery Optimization
         #"DusmSvc" # Data Usage
         #"VaultSvc" # Credential Manager
         #"AppReadiness" # App Readiness
@@ -646,16 +613,21 @@ $essentialtweaks.Add_Click({
         }
     }
 
+    #Disable Delivery Optimization
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\DoSvc" -Name Start -Value 4
+    #Disable WinHTTP Web Proxy Auto-Discovery Service
+    #Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\WinHttpAutoProxySvc" -Name Start -Value 4
+    
     $Icon = [System.Windows.Forms.MessageBoxIcon]::Question
     $Buttons = [System.Windows.Forms.MessageBoxButtons]::YesNo
     $Title = "Disable xbox Services"
     $Message = "Do you wish to disable xbox services? Breaks xbox application"
     $Answer = [System.Windows.Forms.MessageBox]::Show($Message, $Title, $Buttons, $Icon)
     if($Answer -match "Yes"){
-        Get-Service -Name *WinHttpAutoProxySvc* | Set-Service -StartupType Disabled 
-        Get-Service -Name *WinHttpAutoProxySvc* | Stop-Service -Force
         Get-Service -Name *Xbl* | Set-Service -StartupType Disabled 
         Get-Service -Name *Xbl* | Stop-Service -Force
+        Get-Service -Name "XboxNetApiSvc" | Set-Service -StartupType Disabled
+        Get-Service -Name "XboxNetApiSvc" | Stop-Service -Force
     }
         
 
@@ -959,6 +931,7 @@ $disablewindowsupdate.Add_Click({
     Set-ItemProperty -Path "HKLM:\Software\Microsoft\WindowsUpdate\UX\Settings" -Name "UxOption" -Type DWord -Value 1
     Stop-Process -Name "MoUsoCoreWorker" -Force -PassThru -ErrorAction SilentlyContinue | Out-Null
     Stop-Process -Name "TiWorker" -Force -PassThru -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path "HKLM:\SYSTEM\ControlSet001\Services\WaaSMedicSvc" -Name Start -Value 4
     Write-Host "Windows Update has been disabled!"
 })
 
@@ -973,6 +946,7 @@ $enablewindowsupdate.Add_Click({
         New-Item -Path "HKLM:\Software\Microsoft\WindowsUpdate\UX\Settings" -Force | Out-Null
     }
     Set-ItemProperty -Path "HKLM:\Software\Microsoft\WindowsUpdate\UX\Settings" -Name "UxOption" -Type DWord -Value 0
+    Set-ItemProperty -Path "HKLM:\SYSTEM\ControlSet001\Services\WaaSMedicSvc" -Name Start -Value 2
     write-Host "Windows Update has been enabled!"
 })
 
@@ -1013,22 +987,66 @@ Windows Registry Editor Version 5.00
 })
 
 $RemoveBloat.Add_Click({
-    if (Test-Path "$PSScriptRoot\bin\bloatware_list.txt"){
-        $BloatwareList = Get-Content -Path "$PSScriptRoot\bin\bloatware_list.txt"
-        foreach($Line in $BloatwareList){
-            Get-AppxPackage $Line | Remove-AppxPackage -ErrorAction SilentlyContinue
-        }
-    } else {
-        # Update 3 : Added ELSE condition
-        Write-Host "Can't find `"bloatware_list.txt`" inside bin folder! Make sure its there." -ForegroundColor Yellow -BackgroundColor Black
+    $BloatwareList = @(
+        "Microsoft.BioEnrollment"
+        "Microsoft.LockApp"
+        "Microsoft.MicrosoftEdgeDevToolsClient"
+        "Microsoft.MicrosoftEdge"
+        "Microsoft.Windows.AssignedAccessLockApp"
+        "Microsoft.Windows.CallingShellApp"
+        "Microsoft.Windows.CapturePicker"
+        "Microsoft.Windows.NarratorQuickStart"
+        "Microsoft.Windows.ParentalControls"
+        "Microsoft.Windows.PeopleExperienceHost"
+        "Microsoft.Windows.SecureAssessmentBrowser"
+        "Microsoft.Windows.XGpuEjectDialog"
+        "MicrosoftWindows.UndockedDevKit"
+        "Microsoft.BingNews"
+        "Microsoft.BingWeather"
+        "Microsoft.GetHelp"
+        "Microsoft.Getstarted"
+        "Microsoft.MicrosoftOfficeHub"
+        "Microsoft.MicrosoftSolitaireCollection"
+        "Microsoft.MicrosoftStickyNotes"
+        "Microsoft.People"
+        "Microsoft.PowerAutomateDesktop"
+        "Microsoft.SecHealthUI"
+        "Microsoft.Todos"
+        "Microsoft.Windows.Photos"
+        "Microsoft.WindowsAlarms"
+        "Microsoft.WindowsCamera"
+        "microsoft.windowscommunicationsapps"
+        "Microsoft.WindowsFeedbackHub"
+        "Microsoft.WindowsMaps"
+        "Microsoft.WindowsSoundRecorder"
+        "Microsoft.YourPhone"
+        "Microsoft.ZuneMusic"
+        "Microsoft.ZuneVideo"
+        "MicrosoftTeams"
+        "Microsoft.549981C3F5F10"
+        "1527c705-839a-4832-9118-54d4Bd6a0c89"
+        "c5e2524a-ea46-4f67-841f-6a9465d9d515"
+        "E2A4F912-2574-4A75-9BB0-0D023378592B"
+        "F46D4000-FD22-4DB4-AC8E-4E1DDDE828FE"
+        "Microsoft.XboxGameOverlay"
+        "Microsoft.XboxGamingOverlay"
+        "Microsoft.XboxSpeechToTextOverlay"
+    )
+    foreach($Bloat in $BloatwareList){
+        Get-AppxPackage -Name $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null
     }
+
+    $Packages = Get-AppPackage -Name "*-*-*-*-*" | Where-Object{$_.InstallLocation -notmatch "Microsoft.Windows.File"}
+    $Packages | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null
+
 })
 
 $UninstallEdge.Add_Click({
-    $edgepath = "${env:CommonProgramFiles(x86)}\Microsoft\Edge\Application\*.*.*.*\Installer"
-    $arguments = "--uninstall --system-level --verbose-logging --force-uninstall"
+    [String] $ProgramX86 = "$env:SystemDrive\Program Files (x86)"
+    [String] $edgepath = "$ProgramX86\Microsoft\Edge\Application\*.*.*.*\Installer"
+    [String] $arguments = "--uninstall --system-level --verbose-logging --force-uninstall"
 
-    if(Test-Path "${env:CommonProgramFiles(x86)}\Microsoft\Edge\Application"){
+    if(Test-Path "$ProgramX86\Microsoft\Edge\Application"){
         Write-Host "Uninstalling " -NoNewline
         Write-Host "Microsoft Edge" -ForegroundColor Cyan
         Start-Process -FilePath "$edgepath\setup.exe" -ArgumentList $arguments -Verb RunAs -Wait
@@ -1067,15 +1085,15 @@ $UninstallEdge.Add_Click({
         Write-Host "Removing " -NoNewline
         Write-Host "Microsoft Edge's" -NoNewline -ForegroundColor Cyan
         Write-Host " files!"
-        $edgechilditems = Get-ChildItem -Path "${env:CommonProgramFiles(x86)}\Microsoft\Edge"
+        $edgechilditems = Get-ChildItem -Path "$ProgramX86\Microsoft\Edge"
         $edgechilditems | ForEach-Object{
             Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
         }
-        $edgeupdatechilditems = Get-ChildItem -Path "${env:CommonProgramFiles(x86)}\Microsoft\EdgeUpdate"
+        $edgeupdatechilditems = Get-ChildItem -Path "$ProgramX86\Microsoft\EdgeUpdate"
         $edgechilditems | ForEach-Object{
             Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
         }
-        $edgetempchilditems = Get-ChildItem -Path "${env:CommonProgramFiles(x86)}\Microsoft\Temp"
+        $edgetempchilditems = Get-ChildItem -Path "$ProgramX86\Microsoft\Temp"
         $edgechilditems | ForEach-Object{
             Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
         }
@@ -1142,14 +1160,11 @@ $RestoreTweaks.Add_Click({
     #     From Chris Titus Tech's script!
     #     https://github.com/ChrisTitusTech/win10script/blob/master/win10debloat.ps1#L1128
 
-    Write-Host "Creating Restore Point incase something bad happens"
-    Enable-ComputerRestore -Drive $env:SystemDrive
-    Checkpoint-Computer -Description "RestorePoint1" -RestorePointType "MODIFY_SETTINGS"
-
     Write-Host "Enabling Telemetry..."
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 1
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 1
     Write-Host "Enabling Wi-Fi Sense"
+    if(!(Test-Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting")){New-Item -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting" -Force | Out-Null}
     Set-ItemProperty -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting" -Name "Value" -Type DWord -Value 1
     Set-ItemProperty -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowAutoConnectToWiFiSenseHotspots" -Name "Value" -Type DWord -Value 1
     Write-Host "Enabling Application suggestions..."
@@ -1204,12 +1219,9 @@ $RestoreTweaks.Add_Click({
     Write-Host "Allowing WAP Push Service..."
     Stop-Service "dmwappushservice" -WarningAction SilentlyContinue
     Set-Service "dmwappushservice" -StartupType Manual
-    Write-Host "Allowing Home Groups services..."
-    Stop-Service "HomeGroupListener" -WarningAction SilentlyContinue
-    Set-Service "HomeGroupListener" -StartupType Manual
-    Stop-Service "HomeGroupProvider" -WarningAction SilentlyContinue
-    Set-Service "HomeGroupProvider" -StartupType Manual
     Write-Host "Enabling Storage Sense..."
+    New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\StorageSense" | Out-Null
+    New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\StorageSense\Parameters" | Out-Null
     New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" | Out-Null
     Write-Host "Allowing Superfetch service..."
     Stop-Service "SysMain" -WarningAction SilentlyContinue
@@ -1256,25 +1268,24 @@ $RestoreTweaks.Add_Click({
         "*Xbl*" # Xbox Services
         "LanmanWorkstation"
         "workfolderssvc"
-        "WinHttpAutoProxySvc" # NSudo Required
-        "WSearch" # Windows Search
-        "PushToInstall" # Needed for Microsoft Store
-        "icssvc" # Mobile Hotspot
+        #"WSearch" # Windows Search
+        #"PushToInstall" # Needed for Microsoft Store
+        #"icssvc" # Mobile Hotspot
         "MixedRealityOpenXRSvc" # Mixed Reality
         "WMPNetworkSvc" # Windows Media Player Sharing
-        "LicenseManager" # License Manager for Microsoft Store
+        #"LicenseManager" # License Manager for Microsoft Store
         "wisvc" # Insider Program
         "WerSvc" # Error Reporting
-        "WalletService" # Wallet Service
-        "lmhosts" # TCP/IP NetBIOS Helper
+        #"WalletService" # Wallet Service
+        #"lmhosts" # TCP/IP NetBIOS Helper
         "SysMain" # SuperFetch - Safe to disable if you have a SSD
         "svsvc" # Spot Verifier
-        "sppsvc" # Software Protection
+        #"sppsvc" # Software Protection
         "SCPolicySvc" # Smart Card Removal Policy
         "ScDeviceEnum" # Smart Card Device Enumeration Service
         "SCardSvr" # Smart Card
         "LanmanServer" # Server
-        "SensorService" # Sensor Service
+        #"SensorService" # Sensor Service
         "RetailDemo" # Retail Demo Service
         "RemoteRegistry" # Remote Registry
         "UmRdpService" # Remote Desktop Services UserMode Port Redirector
@@ -1282,45 +1293,52 @@ $RestoreTweaks.Add_Click({
         "SessionEnv" # Remote Desktop Configuration
         "RasMan" # Remote Access Connection Manager
         "RasAuto" # Remote Access Auto Connection Manager
-        "TroubleshootingSvc" # Recommended Troubleshooting Service
-        "RmSvc" # Radio Management Service (Might be needed for laptops)
-        "QWAVE" # Quality Windows Audio Video Experience
-        "wercplsupport" # Problem Reports Control Panel Support
+        #"TroubleshootingSvc" # Recommended Troubleshooting Service
+        #"RmSvc" # Radio Management Service (Might be needed for laptops)
+        #"QWAVE" # Quality Windows Audio Video Experience
+        #"wercplsupport" # Problem Reports Control Panel Support
         "Spooler" # Print Spooler
         "PrintNotify" # Printer Extensions and Notifications
         "PhoneSvc" # Phone Service
-        "SEMgrSvc" # Payments and NFC/SE Manager
+        #"SEMgrSvc" # Payments and NFC/SE Manager
         "WpcMonSvc" # Parental Controls
-        "CscService" # Offline Files
-        "InstallService" # Microsoft Store Install Service
-        "SmsRouter" # Microsoft Windows SMS Router Service
-        "smphost" # Microsoft Storage Spaces SMP
-        "NgcCtnrSvc" # Microsoft Passport Container
-        "MsKeyboardFilter" # Microsoft Keyboard Filter ... thanks (.AtomRadar treasury ā™›#8267) for report. 
-        "cloudidsvc" # Microsoft Cloud Identity Service
-        "wlidsvc" # Microsoft Account Sign-in Assistant
+        #"CscService" # Offline Files
+        #"InstallService" # Microsoft Store Install Service
+        #"SmsRouter" # Microsoft Windows SMS Router Service
+        #"smphost" # Microsoft Storage Spaces SMP
+        #"NgcCtnrSvc" # Microsoft Passport Container
+        #"MsKeyboardFilter" # Microsoft Keyboard Filter ... thanks (.AtomRadar treasury ā™›#8267) for report. 
+        #"cloudidsvc" # Microsoft Cloud Identity Service
+        #"wlidsvc" # Microsoft Account Sign-in Assistant
         "*diagnosticshub*" # Microsoft (R) Diagnostics Hub Standard Collector Service
-        "iphlpsvc" # IP Helper - Might break some VPN Clients
+        #"iphlpsvc" # IP Helper - Might break some VPN Clients
         "lfsvc" # Geolocation Service
         "fhsvc" # File History Service
         "Fax" # Fax
-        "embeddedmode" # Embedded Mode
+        #"embeddedmode" # Embedded Mode
         "MapsBroker" # Downloaded Maps Manager
         "TrkWks" # Distributed Link Tracking Client
         "WdiSystemHost" # Diagnostic System Host
         "WdiServiceHost" # Diagnostic Service Host
         "DPS" # Diagnostic Policy Service
         "diagsvc" # Diagnostic Execution Service
-        "DoSvc" # Delivery Optimization
-        "DusmSvc" # Data Usage
-        "VaultSvc" # Credential Manager
-        "AppReadiness" # App Readiness
-    ) ; $Services | ForEach-Object{
-        Set-Service -Name $_ -StartupType Manual
+        #"DusmSvc" # Data Usage
+        #"VaultSvc" # Credential Manager
+        #"AppReadiness" # App Readiness
+    )
+    $Services | ForEach-Object{
+        Set-Service -Name $_ -StartupType Automatic -ErrorAction SilentlyContinue | Out-Null
         Write-Host "Service `"" -NoNewline
         Write-Host $_ -ForegroundColor Green -NoNewline
         Write-Host "`" has been enabled! [-Manual- Startup Type]"
     }
+    Get-Service -Name *Xbl* | Set-Service -StartupType Automatic
+    Get-Service -Name "XboxNetApiSvc" | Set-Service -StartupType Automatic
+
+    #Enable Delivery Optimization
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\DoSvc" -Name Start -Value 2
+    #Enable WinHTTP Web Proxy Auto-Discovery Service - Set to automatic! DO NOT DISABLE IT'LL FUCK UP YOUR COMPUTER
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\WinHttpAutoProxySvc" -Name Start -Value 2
 
     $ScheduledTasks = @(
         "\MicrosoftEdgeUpdateTaskMachineCore"
@@ -1366,11 +1384,16 @@ $RestoreTweaks.Add_Click({
         "\Microsoft\Windows\UNP\RunUpdateNotificationMgr"
         "\Microsoft\Windows\WindowsErrorReporting\QueueReporting"
         "\Microsoft\XblGameSave\XblGameSaveTask"
-    ) ; $ScheduledTasks | ForEach-Object{
-        Enable-ScheduledTask -TaskName $_ | Out-Null
+    )
+    
+    foreach($Task in $ScheduledTasks){
+        Enable-ScheduledTask -TaskName $Task -ErrorAction SilentlyContinue | Out-Null
+        Write-Host "Trying to enable `"" -NoNewline
+        Write-Host $Task -ForegroundColor Green -NoNewline
+        Write-Host "`"" 
     }
 
-    Write-Host "Essential Undo Completed"
+    Write-Host "Essential Undo Completed" 
 })
 
 $EnableActionCenter.Add_Click({
@@ -1430,11 +1453,16 @@ $DisableWindowsDefender.Add_Click({
         "Stop-Service -Force -Name 'Sense' -ErrorAction SilentlyContinue"
         "Set-Service -StartupType Disabled 'wscsvc' -ErrorAction SilentlyContinue"
         "Stop-Service -Force -Name 'wscsvc' -ErrorAction SilentlyContinue"
+        "Set-Service -Name SecurityHealthService -StartupType Disabled -ErrorAction SilentlyContinue"
+        "Stop-Service -Name SecurityHealthService -Force -ErrorAction SilentlyContinue"
         "Disable-ScheduledTask -TaskName '\Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance' | Out-Null"
         "Disable-ScheduledTask -TaskName '\Microsoft\Windows\Windows Defender\Windows Defender Cleanup' | Out-Null"
         "Disable-ScheduledTask -TaskName '\Microsoft\Windows\Windows Defender\Windows Defender Scheduled Scan' | Out-Null"
         "Disable-ScheduledTask -TaskName '\Microsoft\Windows\Windows Defender\Windows Defender Verification' | Out-Null"
         )
+
+        $Command = "Set-ItemProperty -Path `"HKLM:\SYSTEM\CurrentControlSet\Services\SecurityHealthService`" -Name Start -Value 4"
+        Start-Process -FilePath "$PSScriptRoot\NSudo\NSudoLG.exe" -ArgumentList "--U=T --P=E --ShowWindowMode=Hide powershell -Command $Command"
 
         foreach($CMD in $Commands){
             Invoke-Command -ScriptBlock {
@@ -1475,11 +1503,16 @@ $EnableWindowsDefender.Add_Click({
         "Start-Service -Force -Name 'Sense' -ErrorAction SilentlyContinue"
         "Set-Service -StartupType Automatic 'wscsvc' -ErrorAction SilentlyContinue"
         "Start-Service -Force -Name 'wscsvc' -ErrorAction SilentlyContinue"
+        "Set-Service -Name SecurityHealthService -StartupType Automatic -ErrorAction SilentlyContinue"
+        "Start-Service -Name SecurityHealthService -ErrorAction SilentlyContinue"
         "Enable-ScheduledTask -TaskName '\Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance' | Out-Null"
         "Enable-ScheduledTask -TaskName '\Microsoft\Windows\Windows Defender\Windows Defender Cleanup' | Out-Null"
         "Enable-ScheduledTask -TaskName '\Microsoft\Windows\Windows Defender\Windows Defender Scheduled Scan' | Out-Null"
         "Enable-ScheduledTask -TaskName '\Microsoft\Windows\Windows Defender\Windows Defender Verification' | Out-Null"
         )
+
+        $Command = "Set-ItemProperty -Path `"HKLM:\SYSTEM\CurrentControlSet\Services\SecurityHealthService`" -Name Start -Value 2"
+        Start-Process -FilePath "$PSScriptRoot\NSudo\NSudoLG.exe" -ArgumentList "--U=T --P=E --ShowWindowMode=Hide powershell -Command $Command"
 
         foreach($CMD in $Commands){
             Invoke-Command -ScriptBlock {
@@ -1641,7 +1674,6 @@ $RestoreEverything.Add_Click({
         #"*Xbl*" # Xbox Services
         "LanmanWorkstation"
         "workfolderssvc"
-        #"WinHttpAutoProxySvc" # NSudo Required
         #"WSearch" # Windows Search
         #"PushToInstall" # Needed for Microsoft Store
         "icssvc" # Mobile Hotspot
