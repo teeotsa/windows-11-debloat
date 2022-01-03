@@ -10,9 +10,11 @@ You should know this before running this script :
 
 ❌ Don't run this script without backing up your data. Yes, script makes restore point but that might not be enough! ❌
 
-⚠️ This scirpt isn't most up-to date with newer Windows 11 Versions as i don't have that much time to update it 😃 ⚠️
-
 This script is based of my Windows 10's debloater script. You can find it [here!](https://github.com/teeotsa/windows-10-debloat)
+
+# Why can't you run the script?
+
+You probably have to disable Windows Defender to run this script, because script uses NSudo and it might trigger Windows Defender! 
 
 # Can you run it? ✔️
 
