@@ -1035,10 +1035,8 @@ $RemoveBloat.Add_Click({
     )
     foreach($Bloat in $BloatwareList){
         Get-AppxPackage -Name $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null
+	Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online
     }
-
-    $Packages = Get-AppPackage -Name "*-*-*-*-*" | Where-Object{$_.InstallLocation -notmatch "Microsoft.Windows.File"}
-    $Packages | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null
 
 })
 
