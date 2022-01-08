@@ -4,7 +4,6 @@ Add-Type -AssemblyName System.Windows.Forms
 $DoWindowsVersionChecking = $True
 $PowerShellDarkTheme = $True
 
-#If you use PowerShell ISE and try to run this script, you'll get error! Use PowerShell instead!
 if($DoWindowsVersionChecking -eq $True){
     [String]$RegistryKey     = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
     [String]$Name            = "ProductName"
@@ -273,7 +272,7 @@ function Restart-Process{
     if(($ProcessPath -ne $null) -and ($Restart)){
         Start-Sleep -Seconds $RestartDelay
         
-        if(!(Get-Process -Name $Process)){
+        if(!(Get-Process -Name $Process -ErrorAction SilentlyContinue)){
             Start-Process -FilePath $ProcessPath -Verb RunAs -ErrorAction SilentlyContinue | Out-Null
         }
     }
@@ -1034,9 +1033,16 @@ $RemoveBloat.Add_Click({
         "Microsoft.XboxSpeechToTextOverlay"
     )
     foreach($Bloat in $BloatwareList){
+        Write-Host "Trying to remove `"" -NoNewline
+        Write-Host $Bloat -ForegroundColor Red -NoNewline
+        Write-Host "`" Package! Be patient..."
         Get-AppxPackage -Name $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null
-	Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online
+        Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online
     }
+
+    #Experimental, use it at your own risk!
+    #$Packages = Get-AppPackage -Name "*-*-*-*-*" | Where-Object{$_.InstallLocation -notmatch "Microsoft.Windows.File"}
+    #$Packages | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null
 
 })
 
@@ -1084,15 +1090,15 @@ $UninstallEdge.Add_Click({
         Write-Host "Removing " -NoNewline
         Write-Host "Microsoft Edge's" -NoNewline -ForegroundColor Cyan
         Write-Host " files!"
-        $edgechilditems = Get-ChildItem -Path "$ProgramX86\Microsoft\Edge"
+        $edgechilditems = Get-ChildItem -Path "$ProgramX86\Microsoft\Edge" -ErrorAction SilentlyContinue
         $edgechilditems | ForEach-Object{
             Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
         }
-        $edgeupdatechilditems = Get-ChildItem -Path "$ProgramX86\Microsoft\EdgeUpdate"
+        $edgeupdatechilditems = Get-ChildItem -Path "$ProgramX86\Microsoft\EdgeUpdate" -ErrorAction SilentlyContinue
         $edgechilditems | ForEach-Object{
             Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
         }
-        $edgetempchilditems = Get-ChildItem -Path "$ProgramX86\Microsoft\Temp"
+        $edgetempchilditems = Get-ChildItem -Path "$ProgramX86\Microsoft\Temp" -ErrorAction SilentlyContinue
         $edgechilditems | ForEach-Object{
             Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
         }
