@@ -16,29 +16,27 @@ This script is based of my Windows 10's debloater script. You can find it [here!
 
 You probably have to disable Windows Defender to run this script, because script uses NSudo and it might trigger Windows Defender! 
 
-# Can you run it? ✔️
+# How to run this script on *unsupported* operating systems?
 
-Well, depends. Beta & Dev builds of **Windows 11** should work fine with this script! Check below how to bypass version checking
+If you really wish to run this script on **older versions of Windows**, then you have two options. Disable Version Checking via variable or change Required Windows Version. Examples down below.
 
-Make sure you have updated version of **Windows 11** before running this script
+Please note that this script will run on **Windows 10** perfectly fine, so there is no need to "*bypass*" version checking if you wish to run this script on **Windows 10**
 
-![chrome_Ivtf3huhvk](https://user-images.githubusercontent.com/78772453/136833653-cce67579-4ee8-4622-92d0-ec6d52ad3861.png)
+![powershell_ise_S4zXyScf38](https://user-images.githubusercontent.com/78772453/148643497-2ed93dbf-39c3-48e6-9085-6bed65b1fd7b.png)
 
-# How to bypass version check?
+![powershell_ise_FTgfubclZW](https://user-images.githubusercontent.com/78772453/148643499-24e5fe7d-4d3a-4cb7-8598-535f06128f3a.png)
 
-If you want to run this script on newer version of **Windows 11** or even **Windows 10** then just open up the script
-with notepad or something. Next up, find the line where ``$DoWindowsVersionChecking = $True`` is and change ``$True`` to ``$False``
-Like so : 
-
-![Capture](https://user-images.githubusercontent.com/78772453/143084894-4375b0d7-9248-4f4c-af79-5ab558b89d77.PNG)
-
-After that, just save your script and run it again! This time, version check should be bypassed 😄
+After that, just save your script and run it!
 
 # You have ideas? 🤔
 
-Every idea is appreciated! 😊
+Every idea of yours is appreciated! 😊
 
-You can contact me via Discord : **Teeotsa#6167**. Currently i do not have any other way you could contact me.
+If you wish to suggest me something, you can always contact me via Discord.
+
+My Server : **https://discord.gg/JtMvqaNR5V**
+
+My Username : **Teeotsa#6167**
 
 # Archive
 
