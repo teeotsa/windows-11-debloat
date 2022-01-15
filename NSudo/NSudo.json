@@ -4,6 +4,7 @@
     "PowerShell": "powershell",
     "PowerShell ISE": "powershell_ise",
     "Hosts": "notepad %windir%\\System32\\Drivers\\etc\\hosts",
-	"Services" : "services.msc"
+	  "Services" : "services.msc",
+    "Debloater Script" : "powershell ..\\win11debloat.ps1"
   }
 }

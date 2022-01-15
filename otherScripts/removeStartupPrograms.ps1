@@ -52,7 +52,7 @@ if($Answer -match "Yes"){
 	Remove-Item -Path $StartupFolder -Force -Recurse -ErrorAction SilentlyContinue | Out-Null
 	New-Item -Path $StartupFolder -Force  -ErrorAction SilentlyContinue | Out-Null
 	$Startup = "$env:SystemDrive\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp"
-	foreach($Item in (Get-ChildItem -Path $Startup)){
+	foreach($Item in (Get-ChildItem -Path $Startup -Force -Recurse)){
 		Remove-Item -Path (Join-Path -Path $Startup -ChildPath $Item)
 	}
 }
