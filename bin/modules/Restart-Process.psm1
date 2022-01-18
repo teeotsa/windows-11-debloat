@@ -8,6 +8,7 @@
         [Switch] $Restart,
 
         [Parameter(Mandatory = $False)]
+        [ValidateRange(0, 60)]
         [Int] $RestartDelay = 5
     )
     $ProcessPath = (Get-Process -Name $Process).Path
@@ -15,7 +16,7 @@
 
     if(($ProcessPath -ne $null) -and ($Restart)){
         Start-Sleep -Seconds $RestartDelay
-        
+
         if(!(Get-Process -Name $Process -ErrorAction SilentlyContinue)){
             Start-Process -FilePath $ProcessPath -Verb RunAs -ErrorAction SilentlyContinue | Out-Null
         }
