@@ -700,7 +700,6 @@ $OldContextMenu.Add_Click({
 })
 
 $DefaultContextMenu.Add_Click({
-return-win
     Remove-Item -Path "HKCU:\SOFTWARE\CLASSES\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}" -Force -Recurse | Out-Null
     Restart-Process -Process explorer
     Write-Host "You should now have " -NoNewline 
