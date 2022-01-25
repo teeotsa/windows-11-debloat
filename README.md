@@ -16,6 +16,22 @@ This script is based of my Windows 10's debloater script. You can find it [here!
 
 You probably have to disable Windows Defender to run this script, because script uses NSudo and it might trigger Windows Defender! 
 
+# Known Issues
+
+* File Sharing Software (Samba File Share) 
+  
+To enable **File Sharing Software**, enable these services!
+```powershell
+# "workfolderssvc" - Workstation
+# "LanmanServer" - Server
+# "workfolderssvc" - Work Folders
+  
+[Array]@("workfolderssvc", "LanmanServer", "workfolderssvc") | ForEach-Object{
+  Set-Service -Name $_ -StartupType Automatic -ErrorAction SilentlyContinue | Out-Null
+  Start-Service -Name $_ -ErrorAction SilentlyContinue | Out-Null
+}
+```
+
 # How to run this script on *unsupported* operating systems?
 
 If you really wish to run this script on **older versions of Windows**, then you have two options. Disable Version Checking via variable or change Required Windows Version. Examples down below.
