@@ -8,41 +8,12 @@ You should know this before running this script :
 
 ✔️ Before running this script, make sure to backup all your important files! ✔️
 
-❌ Don't run this script without backing up your data. Yes, script makes restore point but that might not be enough! ❌
+❌ Don't run this script without backing up your data. Yes, script makes restore point but that might not be enough!
 
 This script is based of my Windows 10's debloater script. You can find it [here!](https://github.com/teeotsa/windows-10-debloat)
 
-# Why can't you run the script?
+Script's Wiki Page : https://github.com/teeotsa/windows-11-debloat/wiki/wiki
 
-You probably have to disable Windows Defender to run this script, because script uses NSudo and it might trigger Windows Defender! 
-
-# Known Issues
-
-* File Sharing Software (Samba File Share) 
-  
-To enable **File Sharing Software**, enable these services!
-```powershell
-# "workfolderssvc" - Workstation
-# "LanmanServer" - Server
-# "workfolderssvc" - Work Folders
-  
-[Array]@("workfolderssvc", "LanmanServer", "workfolderssvc") | ForEach-Object{
-  Set-Service -Name $_ -StartupType Automatic -ErrorAction SilentlyContinue | Out-Null
-  Start-Service -Name $_ -ErrorAction SilentlyContinue | Out-Null
-}
-```
-
-# How to run this script on *unsupported* operating systems?
-
-If you really wish to run this script on **older versions of Windows**, then you have two options. Disable Version Checking via variable or change Required Windows Version. Examples down below.
-
-Please note that this script will run on **Windows 10** perfectly fine, so there is no need to "*bypass*" version checking if you wish to run this script on **Windows 10**
-
-![powershell_ise_S4zXyScf38](https://user-images.githubusercontent.com/78772453/148643497-2ed93dbf-39c3-48e6-9085-6bed65b1fd7b.png)
-
-![powershell_ise_FTgfubclZW](https://user-images.githubusercontent.com/78772453/148643499-24e5fe7d-4d3a-4cb7-8598-535f06128f3a.png)
-
-After that, just save your script and run it!
 
 # You have ideas? 🤔
 
@@ -53,7 +24,3 @@ If you wish to suggest me something, you can always contact me via Discord.
 My Server : **https://discord.gg/JtMvqaNR5V**
 
 My Username : **Teeotsa#6167**
-
-# Archive
-
-You can find a link to archive [here!](https://www.mediafire.com/folder/3yowpz7x5m103/Windows_11_Debloater_Archive)
