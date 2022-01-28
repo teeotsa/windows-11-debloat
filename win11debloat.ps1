@@ -198,21 +198,21 @@ $RemoveBloat                     = New-Object system.Windows.Forms.Button
 $RemoveBloat.text                = "Uninstall Bloatware"
 $RemoveBloat.width               = 250
 $RemoveBloat.height              = 30
-$RemoveBloat.location            = New-Object System.Drawing.Point(275,366)
+$RemoveBloat.location            = New-Object System.Drawing.Point(275,356)
 $RemoveBloat.Font                = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $UninstallEdge                   = New-Object system.Windows.Forms.Button
 $UninstallEdge.text              = "Uninstall Edge"
 $UninstallEdge.width             = 250
 $UninstallEdge.height            = 30
-$UninstallEdge.location          = New-Object System.Drawing.Point(275,406)
+$UninstallEdge.location          = New-Object System.Drawing.Point(275,386)
 $UninstallEdge.Font              = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $EditScript                      = New-Object system.Windows.Forms.Button
 $EditScript.text                 = "Edit this Script!"
 $EditScript.width                = 250
 $EditScript.height               = 30
-$EditScript.location             = New-Object System.Drawing.Point(275,446)
+$EditScript.location             = New-Object System.Drawing.Point(275,416)
 $EditScript.Font                 = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $Label15                         = New-Object system.Windows.Forms.Label
@@ -227,17 +227,24 @@ $DisableWindowsDefender          = New-Object system.Windows.Forms.Button
 $DisableWindowsDefender.text     = "Disable Windows Defender"
 $DisableWindowsDefender.width    = 250
 $DisableWindowsDefender.height   = 30
-$DisableWindowsDefender.location = New-Object System.Drawing.Point(275,486)
+$DisableWindowsDefender.location = New-Object System.Drawing.Point(275,446)
 $DisableWindowsDefender.Font     = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
 $EnableWindowsDefender           = New-Object system.Windows.Forms.Button
 $EnableWindowsDefender.text      = "Enable Windows Defender"
 $EnableWindowsDefender.width     = 250
 $EnableWindowsDefender.height    = 30
-$EnableWindowsDefender.location  = New-Object System.Drawing.Point(275,526)
+$EnableWindowsDefender.location  = New-Object System.Drawing.Point(275,476)
 $EnableWindowsDefender.Font      = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
 
-$Form.controls.AddRange(@($EnableWindowsDefender,$DisableWindowsDefender,$LaunchSystemRestore,$EditScript,$OtherTweaks,$EditScript,$UninstallEdge,$RemoveBloat,$onedrive,$TakeOwnership,$RemoveTakeOwnership,$DefaultTaskbarIco,$smalltaskbaricons,$enablewindowsupdate,$disablewindowsupdate,$RestoreVisual,$visualfx,$lightmode,$darkmode,$EnableCortana,$cortana,$essentialtweaks,$RestoreTweaks,$Label3,$OldContextMenu,$DefaultContextMenu,$backgroundapps,$EnableBGApps))
+$InstallChrome                   = New-Object system.Windows.Forms.Button
+$InstallChrome.text              = "Install Google Chrome"
+$InstallChrome.width             = 250
+$InstallChrome.height            = 30
+$InstallChrome.location          = New-Object System.Drawing.Point(275,506)
+$InstallChrome.Font              = New-Object System.Drawing.Font('Microsoft Sans Serif',12)
+
+$Form.controls.AddRange(@($InstallChrome, $EnableWindowsDefender,$DisableWindowsDefender,$LaunchSystemRestore,$EditScript,$OtherTweaks,$EditScript,$UninstallEdge,$RemoveBloat,$onedrive,$TakeOwnership,$RemoveTakeOwnership,$DefaultTaskbarIco,$smalltaskbaricons,$enablewindowsupdate,$disablewindowsupdate,$RestoreVisual,$visualfx,$lightmode,$darkmode,$EnableCortana,$cortana,$essentialtweaks,$RestoreTweaks,$Label3,$OldContextMenu,$DefaultContextMenu,$backgroundapps,$EnableBGApps))
 
 $essentialtweaks.Add_Click({
     Set-Location "$PSScriptRoot\bin"
@@ -896,12 +903,14 @@ $UninstallEdge.Add_Click({
     [String] $edgepath = "$ProgramX86\Microsoft\Edge\Application\*.*.*.*\Installer"
     [String] $arguments = "--uninstall --system-level --verbose-logging --force-uninstall"
 
-    if(Test-Path "$ProgramX86\Microsoft\Edge\Application"){
+    if (Test-Path "$ProgramX86\Microsoft\Edge\Application")
+    {
         Write-Host "Uninstalling " -NoNewline
         Write-Host "Microsoft Edge" -ForegroundColor Cyan
         Start-Process -FilePath "$edgepath\setup.exe" -ArgumentList $arguments -Verb RunAs -WindowStyle Hidden -Wait
-        Disable-ScheduledTask -TaskName "\MicrosoftEdgeUpdateTaskMachineUA" | Out-Null
-        Disable-ScheduledTask -TaskName "\MicrosoftEdgeUpdateTaskMachineCore" | Out-Null
+        "\MicrosoftEdgeUpdateTaskMachineUA", "\MicrosoftEdgeUpdateTaskMachineCore" | ForEach-Object {
+            Disable-ScheduledTask -TaskName $_ -ErrorAction SilentlyContinue | Out-Null
+        }
         @("edgeupdatem", "edgeupdate", "MicrosoftEdgeElevationService") | ForEach-Object {
             Set-Service -Name $_ -StartupType Disabled -ErrorAction SilentlyContinue | Out-Null
             Stop-Service -Name $_ -NoWait -Force -ErrorAction SilentlyContinue | Out-Null
@@ -914,7 +923,7 @@ $UninstallEdge.Add_Click({
         ) 
         Foreach($Path in $RegistryPaths){
             Remove-Item -Path $Path -Force -Recurse -ErrorAction SilentlyContinue | Out-Null
-         }
+        }
         Write-Host "Removing " -NoNewline
         Write-Host "Microsoft Edge's" -NoNewline -ForegroundColor Cyan
         Write-Host " files!"
@@ -931,16 +940,17 @@ $UninstallEdge.Add_Click({
     
         #Remove Edge Services
         if (Test-Path "HKLM:\SYSTEM\CurrentControlSet\Services\edgeupdate"){
-            Remove-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\edgeupdate" -Force | Out-Null
+            Remove-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\edgeupdate" -ErrorAction SilentlyContinue -Force | Out-Null
         }
         if (Test-Path "HKLM:\SYSTEM\CurrentControlSet\Services\edgeupdatem"){
-            Remove-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\edgeupdatem" -Force | Out-Null
+            Remove-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\edgeupdatem" -ErrorAction SilentlyContinue -Force | Out-Null
         }
         New-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name DisableEdgeDesktopShortcutCreation -PropertyType DWORD -Value 1
         Write-Host "Microsoft Edge " -NoNewline -ForegroundColor Cyan
         Write-Host "has been removed"
     }
-    else {
+    else
+    {
         Write-Host "Microsoft Edge " -NoNewline -ForegroundColor Cyan
         Write-Host "is not even installed?"
     }
@@ -1332,6 +1342,24 @@ $LaunchSystemRestore.Add_Click({
         if(Test-Path $env:SystemRoot\System32\rstrui.exe){
             Start-Process -FilePath $env:SystemRoot\System32\rstrui.exe
         }
+    }
+})
+
+$InstallChrome.Add_Click({
+    if (!(Test-Path "$env:ProgramFiles\Google\Chrome\Application"))
+    {
+        if (Test-Path $PSScriptRoot\bin\ChromeSetup.exe)
+        {
+            Start-Process -FilePath $PSScriptRoot\bin\ChromeSetup.exe -Verb RunAs
+        }
+        else
+        {
+            Write-Host "Script cannot find Chrome's setup file at `"$PSScriptRoot\bin`""
+        }
+    }
+    else
+    {
+        Write-Host "Google Chrome is already installed..."
     }
 })
 
