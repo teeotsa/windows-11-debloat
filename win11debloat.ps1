@@ -699,18 +699,9 @@ $backgroundapps.Add_Click({
 })
 
 $OldContextMenu.Add_Click({
-    New-Item -Path "HKCU:\SOFTWARE\CLASSES\CLSID" -Force | Out-Null
-    New-Item -Path "HKCU:\SOFTWARE\CLASSES\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}" -Force | Out-Null
-    New-Item -Path "HKCU:\SOFTWARE\CLASSES\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" -Force | Out-Null
-    Restart-Process -Process explorer
-    Write-Host "You should now have " -NoNewline 
-    Write-Host "old context menu" -ForegroundColor Green
-})
-
-$OldContextMenu.Add_Click({
     New-Item -Path "HKCU:\SOFTWARE\Classes\CLSID" -Force | Out-Null
     New-Item -Path "HKCU:\SOFTWARE\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}" -Force | Out-Null
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}" -Name InprocServer32 -Value ([String]::Empty) | Out-Null
+    New-Item -Path "HKCU:\SOFTWARE\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" -Force -Value "" | Out-Null
     Restart-Process -Process explorer
     Write-Host "You should now have " -NoNewline 
     Write-Host "old context menu" -ForegroundColor Green
