@@ -521,8 +521,8 @@ $essentialtweaks.Add_Click({
         #"RmSvc" # Radio Management Service (Might be needed for laptops)
         #"QWAVE" # Quality Windows Audio Video Experience
         #"wercplsupport" # Problem Reports Control Panel Support
-        "Spooler" # Print Spooler
-        "PrintNotify" # Printer Extensions and Notifications
+        #"Spooler" # Print Spooler
+        #"PrintNotify" # Printer Extensions and Notifications
         "PhoneSvc" # Phone Service
         #"SEMgrSvc" # Payments and NFC/SE Manager
         "WpcMonSvc" # Parental Controls
