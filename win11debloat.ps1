@@ -16,9 +16,85 @@ if((Return-WindowsVersion) -notmatch "Windows 10"){
     Write-Host "Windows 11" -ForegroundColor Cyan
     Write-Host ".`n`n`n" -NoNewLine
     Write-Host "Press any key to exit this script..." -ForegroundColor Red
-    $Console = [System.Console]::ReadKey() ; if($Console){Exit}
+    $Console = [System.Console]::ReadKey() ;if($Console){Exit}
 }
 
+function Backup-Registry
+{
+    Write-Host "Backing up registry keys... Wait"
+
+    if (!(Test-Path $PSScriptRoot\RegistryBackups))
+    {
+        New-Item -Path $PSScriptRoot\RegistryBackups -ItemType Directory -Force | Out-Null
+        Write-Host "Created backup folder for Registry Files!"
+    }
+
+    if (Test-Path $PSScriptRoot\RegistryBackups\CURRENTUSER.reg)
+    {
+        if ([System.Windows.Forms.MessageBox]::Show("Current User registry backup is found, do you want to remove it? This is necessary if you'd like to backup your registry keys!", [String]::Empty, [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Information) -match "Yes")
+        {
+            Remove-Item -Path $PSScriptRoot\RegistryBackups\CURRENTUSER.reg -Force
+            Write-Host "Previous Current User backup was removed!"
+        }
+    }
+
+    if (Test-Path $PSScriptRoot\RegistryBackups\LOCALMACHINE.reg)
+    {
+        if ([System.Windows.Forms.MessageBox]::Show("Local Machine registry backup is found, do you want to remove it? This is necessary if you'd like to backup your registry keys!", [String]::Empty, [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Information) -match "Yes")
+        {
+            Remove-Item -Path $PSScriptRoot\RegistryBackups\LOCALMACHINE.reg -Force
+            Write-Host "Previous Local Machine backup was removed!"
+        }
+    }
+
+    if (Test-Path $PSScriptRoot\RegistryBackups\CLASSESROOT.reg)
+    {
+        if ([System.Windows.Forms.MessageBox]::Show("Classes Root registry backup is found, do you want to remove it? This is necessary if you'd like to backup your registry keys!", [String]::Empty, [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Information) -match "Yes")
+        {
+            Remove-Item -Path $PSScriptRoot\RegistryBackups\CLASSESROOT.reg -Force
+            Write-Host "Previous Classes Root backup was removed!"
+        }
+    }
+
+    if (!(Test-Path $PSScriptRoot\RegistryBackups\CURRENTUSER.reg))
+    {
+        try
+        {
+            REG EXPORT ([Microsoft.Win32.Registry]::CurrentUser) $PSScriptRoot\RegistryBackups\CURRENTUSER.reg
+        }
+        catch
+        {
+            Write-Host "Failed to backup Current User's registry!"
+        }
+    }
+
+    if (!(Test-Path $PSScriptRoot\RegistryBackups\LOCALMACHINE.reg))
+    {
+        try
+        {
+            REG EXPORT ([Microsoft.Win32.Registry]::LocalMachine) $PSScriptRoot\RegistryBackups\LOCALMACHINE.reg
+        }
+        catch
+        {
+            Write-Host "Failed to backup Local Machine's registry!"
+        } 
+    }
+
+    if (!(Test-Path $PSScriptRoot\RegistryBackups\CLASSESROOT.reg))
+    {
+        try
+        {
+            REG EXPORT ([Microsoft.Win32.Registry]::ClassesRoot) $PSScriptRoot\RegistryBackups\CLASSESROOT.reg
+        }
+        catch
+        {
+            Write-Host "Failed to backup Classes Root registry!"
+        }
+    }
+    Write-Host "Registry Backup is done!"
+}
+
+Backup-Registry
 Write-Host "Wait, creating Restore Point..." 
 Enable-ComputerRestore -Drive $env:SystemDrive
 Checkpoint-Computer -Description "RestorePoint1" -RestorePointType "MODIFY_SETTINGS"
@@ -248,16 +324,88 @@ $InstallChrome.Font              = New-Object System.Drawing.Font('Microsoft San
 $Form.controls.AddRange(@($InstallChrome, $EnableWindowsDefender,$DisableWindowsDefender,$LaunchSystemRestore,$EditScript,$OtherTweaks,$EditScript,$UninstallEdge,$RemoveBloat,$onedrive,$TakeOwnership,$RemoveTakeOwnership,$DefaultTaskbarIco,$smalltaskbaricons,$enablewindowsupdate,$disablewindowsupdate,$RestoreVisual,$visualfx,$lightmode,$darkmode,$EnableCortana,$cortana,$essentialtweaks,$RestoreTweaks,$Label3,$OldContextMenu,$DefaultContextMenu,$backgroundapps,$EnableBGApps))
 
 $essentialtweaks.Add_Click({
-    Set-Location "$PSScriptRoot\bin"
-    if(!(Test-Path "$PSScriptRoot\bin\OOSU10.exe")){
-        Import-Module BitsTransfer
-        Start-BitsTransfer -Source "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe" -Destination OOSU10.exe
+    Write-Host "Trying to download OOSHUTUP10!"
+    function ConfigureOOS10
+    {
+        param
+        (
+            [Parameter(
+                Mandatory = $true
+            )]
+            [ValidateScript({
+                ((Test-Path $_) -eq $true) -and (([System.IO.File]::GetAttributes($_) -match "Directory") -eq $true)
+            })]
+            [String]
+            $SavePath,
+
+            [Parameter(
+                Mandatory = $false
+            )]
+            [Switch]
+            $DeleteAfter
+        )
+
+        #Enable TLS 1.2
+        if ([System.Net.ServicePointManager]::SecurityProtocol -notmatch "Tls12")
+        {
+            [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
+        }
+
+        if (!(Test-Path $env:TEMP\ooshutup10.exe))
+        {
+            try
+            {
+                $Webclient = New-Object ([System.Net.WebClient])
+                $Webclient.DownloadFile(
+                    "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe",
+                    "$env:TEMP\ooshutup10.exe"
+                )
+                Write-Host "OOSHUTUP10 is downloaded... Starting to download my custom config..."
+            }
+            catch
+            {
+                Write-Host "Script was unable to download OOSHUTUP10, maybe your internet is down?"
+                Return
+            }
+        }
+
+        if (Test-Path $env:TEMP\ooshutup10config.cfg)
+        {
+            Remove-Item -Path $env:TEMP\ooshutup10config.cfg
+            Write-Host "Removed Previous config file!"
+        }
+
+        try
+        {
+            $Webclient = New-Object ([System.Net.WebClient])
+            $Webclient.DownloadFile(
+                #Cfg is downloaded from my Discord server :D
+                "https://cdn.discordapp.com/attachments/941050386335273054/941050420267208784/ooshutup10.cfg",
+                "$env:TEMP\ooshutup10config.cfg"
+            )
+            Write-Host "Config is downloaded... Importing..."
+        }
+        catch
+        {
+            Write-Host "Script was unable to download OOSHUTUP10's Config file, maybe your internet is down?"
+            Return
+        }
+
+        if ((Test-Path $env:TEMP\ooshutup10config.cfg) -and (Test-Path $env:TEMP\ooshutup10.exe))
+        {
+            Start-Process -FilePath $env:TEMP\ooshutup10.exe -ArgumentList "$env:TEMP\ooshutup10config.cfg /quiet" -Verb RunAs -Wait
+            Write-Host "OOSHUTUP10 settings are imported!"
+
+            if ($DeleteAfter)
+            {
+                Remove-Item -Path $env:TEMP\ooshutup10config.cfg
+                Remove-Item -Path $env:TEMP\ooshutup10.exe
+                Write-Host "OOSHUTUP10 was removed from this system!"
+            }
+        }
     }
-    if(!(Test-Path "$PSScriptRoot\bin\ooshutup10.cfg")){
-        Import-Module BitsTransfer
-        Start-BitsTransfer -Source "https://raw.githubusercontent.com/ChrisTitusTech/win10script/master/ooshutup10.cfg" -Destination ooshutup10.cfg
-    }
-    ./OOSU10.exe ooshutup10.cfg /quiet
+
+    ConfigureOOS10 -SavePath $env:TEMP
 
     Write-Host "Disabling Telemetry..."
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0
@@ -333,14 +481,6 @@ $essentialtweaks.Add_Click({
     Write-Host "Stopping and disabling Superfetch service..."
     Stop-Service "SysMain" -WarningAction SilentlyContinue
     Set-Service "SysMain" -StartupType Disabled
-    Write-Host "Setting BIOS time to UTC..."
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" -Name "RealTimeIsUniversal" -Type DWord -Value 1
-    Write-Host "Disabling Hibernation..."
-    Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Session Manager\Power" -Name "HibernteEnabled" -Type Dword -Value 0
-    If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings")) {
-        New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings" | Out-Null
-    }
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings" -Name "ShowHibernateOption" -Type Dword -Value 0
     Write-Host "Showing task manager details..."
     $taskmgr = Start-Process -WindowStyle Hidden -FilePath taskmgr.exe -PassThru
     Do {
@@ -379,8 +519,14 @@ $essentialtweaks.Add_Click({
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1
     Write-Host "Hiding 3D Objects icon from This PC..."
     Remove-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}" -Recurse -ErrorAction SilentlyContinue
-    #Network Tweaks
-	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "IRPStackSize" -Type DWord -Value 20
+    #Network Tweaks (Most of the tweaks were provided to me by emilwojcik93) | https://github.com/emilwojcik93/sc-cmd#introduction
+	#Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "IRPStackSize" -Type DWord -Value 20 # Causes problems with Mapped Drives and File Sharing Programs!
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "SizReqBuf" -Type DWord -Value 17424
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name DefaultTTL -Value 64
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name TCP1323Opts -Value 1
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name MaxFreeTcbs -Value 65536
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name MaxUserPort -Value 65534
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name GlobalMaxTcpWindowSize -Value 65535
 	#SVCHost Tweak
 	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control" -Name "SvcHostSplitThresholdInKB" -Type DWord -Value 4194304
     Write-Host "Disable News and Interests"
@@ -484,21 +630,25 @@ $essentialtweaks.Add_Click({
     Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\Keyboard Response" -Name "Flags" -Value "122"
     Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\ToggleKeys" -Name "Flags" -Value "58"
 
+    #Disable Mitigations
+    Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management' -Name FeatureSettingsOverride -Value 3
+    Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management' -Name FeatureSettingsOverrideMask -Value 3
+
     Write-Host "Disabling some services and scheduled tasks"
 
     $Services = @(
         "*xbox*" # Xbox Services
         "*Xbl*" # Xbox Services
         "XboxNetApiSvc" # Xbox Services
-        "LanmanWorkstation"
-        "workfolderssvc"
+        #"LanmanWorkstation" # Causes problems with Mapped Drives and File Sharing Programs!
+        #"workfolderssvc" # Causes problems with Mapped Drives and File Sharing Programs!
         #"WSearch" # Windows Search
         #"PushToInstall" # Needed for Microsoft Store
         #"icssvc" # Mobile Hotspot
         "MixedRealityOpenXRSvc" # Mixed Reality
         "WMPNetworkSvc" # Windows Media Player Sharing
         #"LicenseManager" # License Manager for Microsoft Store
-        "wisvc" # Insider Program
+        #"wisvc" # Insider Program
         "WerSvc" # Error Reporting
         #"WalletService" # Wallet Service
         #"lmhosts" # TCP/IP NetBIOS Helper
@@ -508,7 +658,7 @@ $essentialtweaks.Add_Click({
         "SCPolicySvc" # Smart Card Removal Policy
         "ScDeviceEnum" # Smart Card Device Enumeration Service
         "SCardSvr" # Smart Card
-        "LanmanServer" # Server
+        #"LanmanServer" # Server # Causes problems with Mapped Drives and File Sharing Programs!
         #"SensorService" # Sensor Service
         "RetailDemo" # Retail Demo Service
         "RemoteRegistry" # Remote Registry
@@ -521,9 +671,9 @@ $essentialtweaks.Add_Click({
         #"RmSvc" # Radio Management Service (Might be needed for laptops)
         #"QWAVE" # Quality Windows Audio Video Experience
         #"wercplsupport" # Problem Reports Control Panel Support
-        #"Spooler" # Print Spooler
-        #"PrintNotify" # Printer Extensions and Notifications
-        "PhoneSvc" # Phone Service
+        "Spooler" # Print Spooler
+        "PrintNotify" # Printer Extensions and Notifications
+        #"PhoneSvc" # Phone Service
         #"SEMgrSvc" # Payments and NFC/SE Manager
         "WpcMonSvc" # Parental Controls
         #"CscService" # Offline Files
@@ -855,8 +1005,6 @@ $RemoveBloat.Add_Click({
         "Microsoft.MicrosoftSolitaireCollection"
         "Microsoft.MicrosoftStickyNotes"
         "Microsoft.People"
-        "Microsoft.PowerAutomateDesktop"
-        "Microsoft.SecHealthUI"
         "Microsoft.Todos"
         "Microsoft.Windows.Photos"
         "Microsoft.WindowsAlarms"
@@ -871,11 +1019,14 @@ $RemoveBloat.Add_Click({
         "MicrosoftTeams"
     )
     foreach($Bloat in $BloatwareList){
-        Write-Host "Trying to remove `"" -NoNewline
-        Write-Host $Bloat -ForegroundColor Red -NoNewline
-        Write-Host "`" Package! Be patient..."
-        Get-AppxPackage -Name $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null
-        Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue
+        if((Get-AppxPackage -Name $Bloat).NonRemovable -eq $false)
+        {
+            Write-Host "Trying to remove `"" -NoNewline
+            Write-Host $Bloat -ForegroundColor Red -NoNewline
+            Write-Host "`" Package! Be patient..."
+            Get-AppxPackage -Name $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null
+            Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue
+        }  
     }
     Write-Host "Bloatware is removed."
 })
@@ -984,6 +1135,87 @@ $EditScript.Add_Click({
 $RestoreTweaks.Add_Click({
     #     From Chris Titus Tech's script!
     #     https://github.com/ChrisTitusTech/win10script/blob/master/win10debloat.ps1#L1128
+    Write-Host "Trying to reset OOSHUTUP10 Settings!"
+    function ConfigureOOS10
+    {
+        param
+        (
+            [Parameter(
+                Mandatory = $true
+            )]
+            [ValidateScript({
+                ((Test-Path $_) -eq $true) -and (([System.IO.File]::GetAttributes($_) -match "Directory") -eq $true)
+            })]
+            [String]
+            $SavePath,
+
+            [Parameter(
+                Mandatory = $false
+            )]
+            [Switch]
+            $DeleteAfter
+        )
+
+        #Enable TLS 1.2
+        if ([System.Net.ServicePointManager]::SecurityProtocol -notmatch "Tls12")
+        {
+            [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
+        }
+
+        if (!(Test-Path $SavePath\ooshutup10.exe))
+        {
+            try
+            {
+                $Webclient = New-Object ([System.Net.WebClient])
+                $Webclient.DownloadFile(
+                    "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe",
+                    "$SavePath\ooshutup10.exe"
+                )
+                Write-Host "OOSHUTUP10 has been downloaded!"
+            }
+            catch
+            {
+                Write-Host "Script was unable to download OOSHUTUP10, maybe your internet is down?"
+                Return
+            }
+            
+        }
+
+        if (Test-Path $SavePath\ooshutup10default.cfg)
+        {
+            Remove-Item -Path $SavePath\ooshutup10default.cfg
+        }
+
+        try
+        {
+            $Webclient = New-Object ([System.Net.WebClient])
+            $Webclient.DownloadFile(
+                #Cfg is downloaded from my Discord server :D
+                "https://cdn.discordapp.com/attachments/941050386335273054/941054988677963776/ooshutup10default.cfg",
+                "$SavePath\ooshutup10default.cfg"
+            )
+            Write-Host "OOSHUTUP10's Default Config has been downloaded!"
+        }
+        catch
+        {
+            Write-Host "Script was unable to download OOSHUTUP10's Config, maybe your internet is down?"
+            Return
+        }
+
+        if ((Test-Path $SavePath\ooshutup10default.cfg) -and (Test-Path $SavePath\ooshutup10.exe))
+        {
+            Start-Process -FilePath $SavePath\ooshutup10.exe -ArgumentList "$SavePath\ooshutup10default.cfg /quiet" -Verb RunAs -Wait
+            Write-Host "OOSHUTUP10 Settings are set to default!"
+            if ($DeleteAfter)
+            {
+                Remove-Item -Path $SavePath\ooshutup10default.cfg
+                Remove-Item -Path $SavePath\ooshutup10.exe
+                Write-Host "OOSHUTUP10 has been removed from your system!"
+            }
+        }
+    }
+    Write-Host "Reverting OOSHUTUP10 Settings... Wait..."
+    ConfigureOOS10 -SavePath $env:TEMP
 
     Write-Host "Enabling Telemetry..."
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 1
@@ -1007,6 +1239,7 @@ $RestoreTweaks.Add_Click({
         Remove-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Recurse -ErrorAction SilentlyContinue
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 0
+    Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name SizReqBuf
     Write-Host "Enabling Activity History..."
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -Type DWord -Value 1
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "PublishUserActivities" -Type DWord -Value 1
@@ -1051,11 +1284,6 @@ $RestoreTweaks.Add_Click({
     Write-Host "Allowing Superfetch service..."
     Stop-Service "SysMain" -WarningAction SilentlyContinue
     Set-Service "SysMain" -StartupType Manual
-    Write-Host "Setting BIOS time to Local Time instead of UTC..."
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" -Name "RealTimeIsUniversal" -Type DWord -Value 0
-    Write-Host "Enabling Hibernation..."
-    Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Session Manager\Power" -Name "HibernteEnabled" -Type Dword -Value 1
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings" -Name "ShowHibernateOption" -Type Dword -Value 1
 	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Name "NoLockScreen" -ErrorAction SilentlyContinue
 
     Write-Host "Hiding file operations details..."
@@ -1087,9 +1315,6 @@ $RestoreTweaks.Add_Click({
     cmd /c RD /S /Q "%WinDir%\System32\GroupPolicy"
     cmd /c gpupdate /force
     # Considered using Invoke-GPUpdate but requires module most people won't have installed
-
-    #Enable LockScreen
-    Remove-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\Personalization" -Name NoLockScreen -Force -ErrorAction SilentlyContinue | Out-Null
 
     #Enable Advertising ID
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type DWord -Value 1
@@ -1125,6 +1350,22 @@ $RestoreTweaks.Add_Click({
 
     #Enable Game DVR 
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -Type DWord -Value 1
+
+    #Restore Auto-Login
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' -Name AutoAdminLogon -Value 0
+
+    #Enable Mitigations
+    Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management' -Name FeatureSettingsOverride -Value 0
+    Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management' -Name FeatureSettingsOverrideMask -Value 3
+
+    #Redo Network Tweaks (Values taken from VM)
+    #Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "IRPStackSize" -Type DWord -Value 14 # Causes problems with Mapped Drives and File Sharing Programs!
+    Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name SizReqBuf -Force 
+    Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name DefaultTTL -Force 
+    Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name TCP1323Opts -Force 
+    Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name MaxFreeTcbs -Force 
+    Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name MaxUserPort -Force 
+    Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name GlobalMaxTcpWindowSize -Force 
 
     $Services = @(
         "XboxNetApiSvc" # Xbox Services
@@ -1192,9 +1433,7 @@ $RestoreTweaks.Add_Click({
     )
     $Services | ForEach-Object{
         Set-Service -Name $_ -StartupType Automatic -ErrorAction SilentlyContinue | Out-Null
-        Write-Host "Service `"" -NoNewline
-        Write-Host $_ -ForegroundColor Green -NoNewline
-        Write-Host "`" has been enabled! [-Manual- Startup Type]"
+        Write-Host "Service " -NoNewline ; Write-Host "`"$_`"" -ForegroundColor Green -NoNewline ; Write-Host " is enabled now!"
     }
 
     #Enable Delivery Optimization
@@ -1328,21 +1567,74 @@ $LaunchSystemRestore.Add_Click({
 })
 
 $InstallChrome.Add_Click({
-    if (!(Test-Path "$env:ProgramFiles\Google\Chrome\Application"))
+    Write-Host "Wait, trying to install Chrome!"
+    function Get-ChromeInstaller
     {
-        if (Test-Path $PSScriptRoot\bin\ChromeSetup.exe)
+        [Alias('gcir')]
+        param
+        (
+            [Parameter(
+                Mandatory = $true,
+                HelpMessage = "Spcify the path where you'd like to save Chrome's installer."
+            )]
+
+            [ValidateScript({
+                ((Test-Path $_) -eq $true) -and (([System.IO.File]::GetAttributes($_)) -match "Directory")
+            })]
+
+            [String]
+            [Alias(
+                'Folder', 
+                'SavePath', 
+                'd', 
+                'fo'
+            )]
+            $Directory,
+
+            [Parameter(
+                Mandatory = $false,
+                HelpMessage = 'Do you want to launch installer after downloading it? Then use this parameter!'
+            )]
+
+            [Alias(
+            'Launch', 
+            'la', 
+            'l',
+            'install'
+            )]
+
+            [Switch]
+            $Start
+        )
+
+        $ChromeLink = "http://dl.google.com/chrome/install/375.126/chrome_installer.exe";
+
+        if (!(Test-Path (Join-Path -Path $Directory -ChildPath 'chromeSetup.exe')))
         {
-            Start-Process -FilePath $PSScriptRoot\bin\ChromeSetup.exe -Verb RunAs
+            $WebClientDownloader = New-Object ([System.Net.WebClient])
+
+            try
+            {
+                $WebClientDownloader.DownloadFile(
+                    $ChromeLink,
+                    (Join-Path -Path $Directory -ChildPath 'chromeSetup.exe')
+                )
+            }
+            catch
+            {
+                Write-Host "Couldn't download chrome's installer!"
+                Return
+            }
         }
-        else
+
+        if ($Start)
         {
-            Write-Host "Script cannot find Chrome's setup file at `"$PSScriptRoot\bin`""
+            Start-Process -FilePath (Join-Path -Path $Directory -ChildPath 'chromeSetup.exe') -WindowStyle Hidden -Wait
         }
     }
-    else
-    {
-        Write-Host "Google Chrome is already installed..."
-    }
+
+    Get-ChromeInstaller -Directory $env:TEMP -Start
+    Write-Host "Chrome should be installed now...!"
 })
 
 [void]$Form.ShowDialog()
