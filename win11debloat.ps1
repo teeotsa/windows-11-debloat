@@ -637,9 +637,9 @@ $essentialtweaks.Add_Click({
     Write-Host "Disabling some services and scheduled tasks"
 
     $Services = @(
-        "*xbox*" # Xbox Services
-        "*Xbl*" # Xbox Services
-        "XboxNetApiSvc" # Xbox Services
+        #"*xbox*" # Xbox Services
+        #"*Xbl*" # Xbox Services
+        #"XboxNetApiSvc" # Xbox Services
         #"LanmanWorkstation" # Causes problems with Mapped Drives and File Sharing Programs!
         #"workfolderssvc" # Causes problems with Mapped Drives and File Sharing Programs!
         #"WSearch" # Windows Search
@@ -1371,8 +1371,8 @@ $RestoreTweaks.Add_Click({
         "XboxNetApiSvc" # Xbox Services
         "*xbox*" # Xbox Services
         "*Xbl*" # Xbox Services
-        "LanmanWorkstation"
-        "workfolderssvc"
+        #"LanmanWorkstation" # Commented out so people won't bother me anymore to fix File Sharing. I'd still disable em tho
+        #"workfolderssvc" # Commented out so people won't bother me anymore to fix File Sharing. I'd still disable em tho
         "WSearch" # Windows Search
         #"PushToInstall" # Needed for Microsoft Store
         #"icssvc" # Mobile Hotspot
@@ -1389,7 +1389,7 @@ $RestoreTweaks.Add_Click({
         "SCPolicySvc" # Smart Card Removal Policy
         "ScDeviceEnum" # Smart Card Device Enumeration Service
         "SCardSvr" # Smart Card
-        "LanmanServer" # Server
+        #"LanmanServer" # Server # Commented out so people won't bother me anymore to fix File Sharing. I'd still disable em tho
         #"SensorService" # Sensor Service
         "RetailDemo" # Retail Demo Service
         "RemoteRegistry" # Remote Registry
@@ -1436,8 +1436,8 @@ $RestoreTweaks.Add_Click({
         Write-Host "Service " -NoNewline ; Write-Host "`"$_`"" -ForegroundColor Green -NoNewline ; Write-Host " is enabled now!"
     }
 
-    #Enable Delivery Optimization
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\DoSvc" -Name Start -Value 2
+    #Enable Delivery Optimization # Commented out because this "broke" Microsoft Store
+    #Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\DoSvc" -Name Start -Value 2
     #Enable WinHTTP Web Proxy Auto-Discovery Service - Set to automatic! DO NOT DISABLE IT'LL FUCK UP YOUR COMPUTER
     #Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\WinHttpAutoProxySvc" -Name Start -Value 2
 
