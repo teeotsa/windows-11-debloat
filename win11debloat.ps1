@@ -13,91 +13,15 @@ if((Return-WindowsVersion) -notmatch "Windows 10"){
     Write-Host "Please use " -NoNewline
     Write-Host "Windows 10" -ForegroundColor Blue -NoNewline
     Write-Host " or " -NoNewline
-    Write-Host "Windows 11" -ForegroundColor Cyan
+    Write-Host "Windows 11" -ForegroundColor Cyan -NoNewline
     Write-Host ".`n`n`n" -NoNewLine
     Write-Host "Press any key to exit this script..." -ForegroundColor Red
     $Console = [System.Console]::ReadKey() ;if($Console){Exit}
 }
 
-function Backup-Registry
-{
-    Write-Host "Backing up registry keys... Wait"
-
-    if (!(Test-Path $PSScriptRoot\RegistryBackups))
-    {
-        New-Item -Path $PSScriptRoot\RegistryBackups -ItemType Directory -Force | Out-Null
-        Write-Host "Created backup folder for Registry Files!"
-    }
-
-    if (Test-Path $PSScriptRoot\RegistryBackups\CURRENTUSER.reg)
-    {
-        if ([System.Windows.Forms.MessageBox]::Show("Current User registry backup is found, do you want to remove it? This is necessary if you'd like to backup your registry keys!", [String]::Empty, [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Information) -match "Yes")
-        {
-            Remove-Item -Path $PSScriptRoot\RegistryBackups\CURRENTUSER.reg -Force
-            Write-Host "Previous Current User backup was removed!"
-        }
-    }
-
-    if (Test-Path $PSScriptRoot\RegistryBackups\LOCALMACHINE.reg)
-    {
-        if ([System.Windows.Forms.MessageBox]::Show("Local Machine registry backup is found, do you want to remove it? This is necessary if you'd like to backup your registry keys!", [String]::Empty, [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Information) -match "Yes")
-        {
-            Remove-Item -Path $PSScriptRoot\RegistryBackups\LOCALMACHINE.reg -Force
-            Write-Host "Previous Local Machine backup was removed!"
-        }
-    }
-
-    if (Test-Path $PSScriptRoot\RegistryBackups\CLASSESROOT.reg)
-    {
-        if ([System.Windows.Forms.MessageBox]::Show("Classes Root registry backup is found, do you want to remove it? This is necessary if you'd like to backup your registry keys!", [String]::Empty, [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Information) -match "Yes")
-        {
-            Remove-Item -Path $PSScriptRoot\RegistryBackups\CLASSESROOT.reg -Force
-            Write-Host "Previous Classes Root backup was removed!"
-        }
-    }
-
-    if (!(Test-Path $PSScriptRoot\RegistryBackups\CURRENTUSER.reg))
-    {
-        try
-        {
-            REG EXPORT ([Microsoft.Win32.Registry]::CurrentUser) $PSScriptRoot\RegistryBackups\CURRENTUSER.reg
-        }
-        catch
-        {
-            Write-Host "Failed to backup Current User's registry!"
-        }
-    }
-
-    if (!(Test-Path $PSScriptRoot\RegistryBackups\LOCALMACHINE.reg))
-    {
-        try
-        {
-            REG EXPORT ([Microsoft.Win32.Registry]::LocalMachine) $PSScriptRoot\RegistryBackups\LOCALMACHINE.reg
-        }
-        catch
-        {
-            Write-Host "Failed to backup Local Machine's registry!"
-        } 
-    }
-
-    if (!(Test-Path $PSScriptRoot\RegistryBackups\CLASSESROOT.reg))
-    {
-        try
-        {
-            REG EXPORT ([Microsoft.Win32.Registry]::ClassesRoot) $PSScriptRoot\RegistryBackups\CLASSESROOT.reg
-        }
-        catch
-        {
-            Write-Host "Failed to backup Classes Root registry!"
-        }
-    }
-    Write-Host "Registry Backup is done!"
-}
-
-Backup-Registry
 Write-Host "Wait, creating Restore Point..." 
 Enable-ComputerRestore -Drive $env:SystemDrive
-Checkpoint-Computer -Description "RestorePoint1" -RestorePointType "MODIFY_SETTINGS"
+Checkpoint-Computer -Description "BeforeDebloat" -RestorePointType "MODIFY_SETTINGS"
 Dark-Mode -Enable
 
 $Form                            = New-Object System.Windows.Forms.Form
@@ -481,6 +405,7 @@ $essentialtweaks.Add_Click({
     Write-Host "Stopping and disabling Superfetch service..."
     Stop-Service "SysMain" -WarningAction SilentlyContinue
     Set-Service "SysMain" -StartupType Disabled
+    <#
     Write-Host "Showing task manager details..."
     $taskmgr = Start-Process -WindowStyle Hidden -FilePath taskmgr.exe -PassThru
     Do {
@@ -490,6 +415,7 @@ $essentialtweaks.Add_Click({
     Stop-Process $taskmgr
     $preferences.Preferences[28] = 0
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager" -Name "Preferences" -Type Binary -Value $preferences.Preferences
+    #>
     Write-Host "Showing file operations details..."
     If (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\OperationStatusManager")) {
         New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\OperationStatusManager" | Out-Null
@@ -712,7 +638,7 @@ $essentialtweaks.Add_Click({
     }
 
     #Disable Delivery Optimization
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\DoSvc" -Name Start -Value 4
+    #Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\DoSvc" -Name Start -Value 4
     #Disable WinHTTP Web Proxy Auto-Discovery Service (Please do not disable this, this will fuck up Windows Explorer)
     #Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\WinHttpAutoProxySvc" -Name Start -Value 4
      
