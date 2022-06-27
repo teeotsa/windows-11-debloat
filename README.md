@@ -19,8 +19,4 @@ Script's Wiki Page : https://github.com/teeotsa/windows-11-debloat/wiki/wiki
 
 Every idea of yours is appreciated! 😊
 
-If you wish to suggest me something, you can always contact me via Discord.
-
-My Server : **https://discord.gg/JtMvqaNR5V**
-
-My Username : **Teeotsa#6167**
+If you wish to suggest me something, create pull request :)
