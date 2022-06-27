@@ -1,22 +1,15 @@
 # Windows 11 Debloater 🚀
 
-Discord Link (if you have any issues) : **https://discord.gg/JtMvqaNR5V**
+# How to use?
 
-You should know this before running this script : 
+I'll include a tutorial later on.
 
-⚠️ Disclaimer: You're doing this at your own risk, I am not responsible for any data loss or damage that may occur. ⚠️
+# Issues starting up
 
-✔️ Before running this script, make sure to backup all your important files! ✔️
+Issues might occur when trying to start my script, so I'll list some solutions.
 
-❌ Don't run this script without backing up your data. Yes, script makes restore point but that might not be enough!
+* **Try to disable Windows Defender or add exclusion.**
 
-This script is based of my Windows 10's debloater script. You can find it [here!](https://github.com/teeotsa/windows-10-debloat)
+# Known issues
 
-Script's Wiki Page : https://github.com/teeotsa/windows-11-debloat/wiki/wiki
-
-
-# You have ideas? 🤔
-
-Every idea of yours is appreciated! 😊
-
-If you wish to suggest me something, create pull request :)
+\- None right now -
