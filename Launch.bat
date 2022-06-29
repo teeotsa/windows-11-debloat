@@ -20,8 +20,7 @@ GOTO CHECK_MAIN_FILE
 	IF NOT %errorLevel% == 0 (
 		COLOR C
 		CLS
-		ECHO This script requires you to have admin premission. Please run this script
-		ECHO as admin!
+		ECHO Please run this script as Administrator
 		PAUSE > NUL
 		EXIT
 	)
