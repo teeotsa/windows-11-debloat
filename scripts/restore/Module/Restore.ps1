@@ -4,7 +4,13 @@ Param
 
     [Parameter()] [Switch] $VisualEffects,
 
-    [Parameter()] [Switch] $Hibernation
+    [Parameter()] [Switch] $Hibernation,
+
+    [Parameter()] [Switch] $WindowsUpdate,
+
+    [Parameter()] [Switch] $WiFiConnection,
+
+    [Parameter()] [Switch] $WindowsSearch
 )
 
 Add-Type -AssemblyName System.Windows.Forms
