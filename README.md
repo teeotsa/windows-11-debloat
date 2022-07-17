@@ -1,5 +1,7 @@
 # Windows 11 Debloater 🚀
 
+This script will be re-designed. 
+
 If you have any issues then [join my Discord Server.](https://discord.gg/JtMvqaNR5V) (Dead lol)
 
 # How to use?
