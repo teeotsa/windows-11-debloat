@@ -843,17 +843,15 @@ $onedrive.Add_Click({
     Start-Sleep -Seconds 2
     Restart-Process -Process "explorer" -Restart -RestartDelay 5
     Start-Sleep -Seconds 2
-    Remove-Item -Path "$env:USERPROFILE\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-    Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-    Remove-Item -Path "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-    Remove-Item -Path "$env:SYSTEMDRIVE\OneDriveTemp" -Force -Recurse -ErrorAction SilentlyContinue
     If (!(Test-Path "HKCR:")) {
         New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT | Out-Null
     }
     Remove-Item -Path "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
     Remove-Item -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
-    If ((Get-ChildItem "$env:userprofile\OneDrive" -Recurse | Measure-Object).Count -eq 0) {
-        Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "$env:userprofile\OneDrive"
+    If ((Get-ChildItem "$env:userprofile\OneDrive" -Recurse | Measure-Object).Count -gt 0) {
+        [Void][System.Windows.Forms.MessageBox]::Show(
+            "Hey, you still have your files in OneDrive folder!", "", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning
+        )
     }
     Log("Disabled OneDrive")
 })
@@ -996,30 +994,6 @@ $UninstallEdge.Add_Click({
         [Array] @("edgeupdatem", "edgeupdate", "MicrosoftEdgeElevationService") | ForEach-Object {
             Set-Service -Name $_ -StartupType Disabled -ErrorAction SilentlyContinue | Out-Null
             Stop-Service -Name $_ -NoWait -Force -ErrorAction SilentlyContinue | Out-Null
-        }
-        Log("Cleaning Microsoft Edge keys & files")
-        [Array] $RegistryPaths = @(
-            "HKCU:\SOFTWARE\Microsoft\Edge", "HKCU:\SOFTWARE\Microsoft\EdgeUpdate", "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Edge", "HKLM:\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate"
-        ) 
-        Foreach($Path in $RegistryPaths){
-            Remove-Item -Path $Path -Force -Recurse -ErrorAction SilentlyContinue | Out-Null
-        }
-        Get-ChildItem -Path "$ProgramX86\Microsoft\Edge" -Force | ForEach-Object{
-            Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
-        }
-        Get-ChildItem -Path "$ProgramX86\Microsoft\EdgeUpdate" -Force | ForEach-Object{
-            Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
-        }
-        Get-ChildItem -Path "$ProgramX86\Microsoft\Temp" -Force | ForEach-Object{
-            Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
-        }
-    
-        #Remove Edge Services
-        if (Test-Path "HKLM:\SYSTEM\CurrentControlSet\Services\edgeupdate"){
-            Remove-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\edgeupdate" -ErrorAction SilentlyContinue -Force | Out-Null
-        }
-        if (Test-Path "HKLM:\SYSTEM\CurrentControlSet\Services\edgeupdatem"){
-            Remove-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\edgeupdatem" -ErrorAction SilentlyContinue -Force | Out-Null
         }
         New-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name DisableEdgeDesktopShortcutCreation -PropertyType DWORD -Value 1
         Log("Microsoft Edge is removed")
