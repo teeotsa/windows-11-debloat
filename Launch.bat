@@ -16,7 +16,7 @@ GOTO CHECK_MAIN_FILE
 	GOTO CHECK_ADMIN_PERMS
 
 :CHECK_ADMIN_PERMS
-	net session >nul 2>&1
+	openfiles >nul 2>&1
 	IF NOT %errorLevel% == 0 (
 		COLOR C
 		CLS
