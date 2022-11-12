@@ -2,7 +2,7 @@
 
 This script will be re-designed. 
 
-If you have any issues then [join my Discord Server.](https://discord.gg/JtMvqaNR5V) (Dead lol)
+⚠️ DISCLAIMER: You're using this at your own risk, I'm not responsible for any damage or data loss.
 
 # How to use?
 
