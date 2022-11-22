@@ -11,15 +11,6 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
     Exit
 }
 
-# Source : https://www.nsoftware.com/kb/articles/powershell-server-changing-terminal-width.rst        
-$PowerShellWindow = (Get-Host).UI.RawUI    
-$NewSize = $PowerShellWindow.BufferSize 
-$NewSize.Width = 150            
-$PowerShellWindow.BufferSize = $NewSize
-$NewSize = $PowerShellWindow.WindowSize 
-$NewSize.Width = 150            
-$PowerShellWindow.WindowSize = $NewSize
-
 Function Error([String] $Message)
 {
     If (($Message -ne $null) -and ($Message.Length -gt 0))
@@ -49,14 +40,11 @@ Function Log([String] $Message)
 
 Try
 {
-    $ProductName = Get-ItemPropertyValue -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" -Name "ProductName" -ErrorAction Stop
-    If ($ProductName -notmatch "Windows 10")
+    $Build = [System.Convert]::ToInt32([System.Environment]::OSVersion.Version.Build)
+    If ($Build -lt 16000)
     {
-        Error("This script is only meant to be ran on Windows 10 or 11, $ProductName is not supported! Press any key to close this script.")
-        If ([System.Console]::ReadKey())
-        {
-            Exit
-        }
+        Error("This script is only meant to be ran on Windows 10 or 11, Build $Build is not supported! Press any key to close this script.")
+        If ([System.Console]::ReadKey()) { Exit }
     }
 }
 Catch

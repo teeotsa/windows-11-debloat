@@ -16,14 +16,15 @@ GOTO CHECK_MAIN_FILE
 	GOTO CHECK_ADMIN_PERMS
 
 :CHECK_ADMIN_PERMS
-	openfiles >nul 2>&1
-	IF NOT %errorLevel% == 0 (
+	REG QUERY "HKEY_USERS\S-1-5-20" || (
+		CLS
 		COLOR C
 		CLS
 		ECHO Please run this script as Administrator
 		PAUSE > NUL
 		EXIT
 	)
+	CLS
 	GOTO START_SCRIPT
 
 :START_SCRIPT
