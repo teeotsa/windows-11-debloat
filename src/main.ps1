@@ -572,6 +572,11 @@ $essentialtweaks.Add_Click({
     Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management' -Name FeatureSettingsOverride -Value 3
     Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management' -Name FeatureSettingsOverrideMask -Value 3
 
+    # Clean Taskbar
+    Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name TaskbarDa -Value 0 -Force
+    Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name TaskbarMn -Value 0 -Force
+    Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name TaskbarAl -Value 0 -Force
+
     Log("Disabling some services and scheduled tasks")
 
     $Services = @(
@@ -619,7 +624,7 @@ $essentialtweaks.Add_Click({
         #"SmsRouter" # Microsoft Windows SMS Router Service
         #"smphost" # Microsoft Storage Spaces SMP
         #"NgcCtnrSvc" # Microsoft Passport Container
-        #"MsKeyboardFilter" # Microsoft Keyboard Filter ... thanks (.AtomRadar treasury â™›#8267) for report. 
+        #"MsKeyboardFilter" # Microsoft Keyboard Filter ... thanks (.AtomRadar treasury Ã¢â„¢â€º#8267) for report. 
         #"cloudidsvc" # Microsoft Cloud Identity Service
         #"wlidsvc" # Microsoft Account Sign-in Assistant
         "*diagnosticshub*" # Microsoft (R) Diagnostics Hub Standard Collector Service
@@ -1270,6 +1275,11 @@ $RestoreTweaks.Add_Click({
     Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name MaxUserPort -Force 
     Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name GlobalMaxTcpWindowSize -Force 
 
+    # Restore Taskbar Items
+    Remove-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name TaskbarDa -Force
+    Remove-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name TaskbarMn -Force
+    Remove-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name TaskbarAl -Force
+
     $Services = @(
         "XboxNetApiSvc" # Xbox Services
         "*xbox*" # Xbox Services
@@ -1315,7 +1325,7 @@ $RestoreTweaks.Add_Click({
         "SmsRouter" # Microsoft Windows SMS Router Service
         "smphost" # Microsoft Storage Spaces SMP
         "NgcCtnrSvc" # Microsoft Passport Container
-        "MsKeyboardFilter" # Microsoft Keyboard Filter ... thanks (.AtomRadar treasury â™›#8267) for report. 
+        "MsKeyboardFilter" # Microsoft Keyboard Filter ... thanks (.AtomRadar treasury Ã¢â„¢â€º#8267) for report. 
         "cloudidsvc" # Microsoft Cloud Identity Service
         "wlidsvc" # Microsoft Account Sign-in Assistant
         "*diagnosticshub*" # Microsoft (R) Diagnostics Hub Standard Collector Service
