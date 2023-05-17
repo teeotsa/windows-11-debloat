@@ -954,6 +954,7 @@ $RemoveBloat.Add_Click({
         "Microsoft.ZuneMusic"
         "Microsoft.ZuneVideo"
         "MicrosoftTeams"
+        "ClipChamp.ClipChamp"
     )
     foreach($Bloat in $BloatwareList){
         if((Get-AppxPackage -Name $Bloat).NonRemovable -eq $false)
