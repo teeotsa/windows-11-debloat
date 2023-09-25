@@ -443,8 +443,8 @@ $essentialtweaks.Add_Click({
     bcdedit /set `{current`} bootmenupolicy Legacy | Out-Null
     Log("Disabling Remote Assistance...")
     Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Name "fAllowToGetHelp" -Type DWord -Value 0
-    Log("Disabling Storage Sense...")
-    Remove-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" -Recurse -ErrorAction SilentlyContinue
+    #Log("Disabling Storage Sense...")
+    #Remove-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" -Recurse -ErrorAction SilentlyContinue
     Log("Stopping and disabling Superfetch service...")
     Stop-Service "SysMain" -WarningAction SilentlyContinue
     Set-Service "SysMain" -StartupType Disabled
@@ -487,13 +487,6 @@ $essentialtweaks.Add_Click({
     }
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCAMeetNow" -Type DWord -Value 1
 
-    #Disable LockScreen
-    If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\Personalization")) {
- 	    New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\Personalization" | Out-Null
-    }
-    Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\Personalization" -Name "NoLockScreen" -Type DWord -Value 1
-    Log("Lock Screen has been disabled")
-
     #Disable Advertising ID
     If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo")) {
 	    New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" | Out-Null
@@ -530,7 +523,7 @@ $essentialtweaks.Add_Click({
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" -Name "DisableLocation" -Type DWord -Value 1
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" -Name "DisableLocationScripting" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" -Name "DisableSensors" -Type DWord -Value 1
+    #Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" -Name "DisableSensors" -Type DWord -Value 1
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" -Name "DisableWindowsLocationProvider" -Type DWord -Value 1
 
     #Disable Auto Map Downloading/Updating
@@ -538,18 +531,6 @@ $essentialtweaks.Add_Click({
         New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Maps" -Force | Out-Null
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Maps" -Name "AutoDownloadAndUpdateMapData" -Type DWord -Value 0
-
-    # Disable Application Notifications / This might break some notifications like Windows Defender ones!
-    # Thanks Niecks#2591 for reporting
-    # Line to remove it : Remove-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "NoTileApplicationNotification" -Force | Out-Null
-
-    if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings")){
-        New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings" -Force | Out-Null
-    }
-    Get-ChildItem -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings" -ErrorAction SilentlyContinue | ForEach-Object {
-        Set-ItemProperty -Path $_.PsPath -Name "Enabled" -Type DWord -Value 0
-        Set-ItemProperty -Path $_.PsPath -Name "LastNotificationAddedTime" -Type QWord -Value "0"
-    }
 
     #Disable Windows Feeds
     if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds")){
@@ -624,7 +605,7 @@ $essentialtweaks.Add_Click({
         #"SmsRouter" # Microsoft Windows SMS Router Service
         #"smphost" # Microsoft Storage Spaces SMP
         #"NgcCtnrSvc" # Microsoft Passport Container
-        #"MsKeyboardFilter" # Microsoft Keyboard Filter ... thanks (.AtomRadar treasury Ã¢â„¢â€º#8267) for report. 
+        #"MsKeyboardFilter" # Microsoft Keyboard Filter ... thanks (.AtomRadar treasury #8267) for report. 
         #"cloudidsvc" # Microsoft Cloud Identity Service
         #"wlidsvc" # Microsoft Account Sign-in Assistant
         "*diagnosticshub*" # Microsoft (R) Diagnostics Hub Standard Collector Service
@@ -950,7 +931,7 @@ $RemoveBloat.Add_Click({
         "Microsoft.WindowsFeedbackHub"
         "Microsoft.WindowsMaps"
         "Microsoft.WindowsSoundRecorder"
-        "Microsoft.YourPhone"
+        #"Microsoft.YourPhone" #Actually useful lol
         "Microsoft.ZuneMusic"
         "Microsoft.ZuneVideo"
         "MicrosoftTeams"
@@ -1326,7 +1307,7 @@ $RestoreTweaks.Add_Click({
         "SmsRouter" # Microsoft Windows SMS Router Service
         "smphost" # Microsoft Storage Spaces SMP
         "NgcCtnrSvc" # Microsoft Passport Container
-        "MsKeyboardFilter" # Microsoft Keyboard Filter ... thanks (.AtomRadar treasury Ã¢â„¢â€º#8267) for report. 
+        "MsKeyboardFilter" # Microsoft Keyboard Filter ... thanks (.AtomRadar treasury #8267) for report. 
         "cloudidsvc" # Microsoft Cloud Identity Service
         "wlidsvc" # Microsoft Account Sign-in Assistant
         "*diagnosticshub*" # Microsoft (R) Diagnostics Hub Standard Collector Service
